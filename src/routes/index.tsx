@@ -13,9 +13,9 @@ import {
   type GameState,
 } from "@/lib/game/engine";
 
-const TITLE = "The Second Republic — Italy 1993 Political Simulation";
+const TITLE = "The Second Republic — Italy 1992 Political Simulation";
 const DESCRIPTION =
-  "Lead Forza Italia, the PDS, Lega Nord, AN, PPI or Rifondazione through Tangentopoli and the collapse of the First Republic to the Italian election of March 1994.";
+  "Lead Forza Italia, the PDS, Lega Nord, AN, PPI or Rifondazione from the summer of 1992 through Tangentopoli and the collapse of the First Republic to the Italian election of March 1994.";
 
 export const Route = createFileRoute("/")({
   head: () => ({

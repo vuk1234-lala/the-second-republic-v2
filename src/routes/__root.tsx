@@ -77,7 +77,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "The Second Republic — Italy 1993" },
+      { title: "The Second Republic — Italy 1992–1994" },
       {
         name: "description",
         content: "A political simulation of Italy's transition from the First to the Second Republic.",
