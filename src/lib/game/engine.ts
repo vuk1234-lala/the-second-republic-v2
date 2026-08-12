@@ -105,13 +105,14 @@ export function runElection(state: GameState): ElectionResult {
   const coalitionSeats = coalition.reduce((a, b) => a + b.seats, 0);
   const allies = coalition.filter((r) => r.id !== state.party).map((r) => r.id);
   const government = coalitionSeats >= 316;
-  const largest = rows[0].id === state.party;
+  const top = rows[0]!;
+  const largest = top.id === state.party;
 
   let verdict: string;
   if (government && largest) {
     verdict = `${p.leader} is sworn in at the Quirinale. ${p.short} leads the first government of the Second Republic.`;
   } else if (government) {
-    verdict = `Your coalition has a majority, but ${PARTY_MAP[rows[0].id].short} is its largest party — ${p.leader} governs as a junior partner.`;
+    verdict = `Your coalition has a majority, but ${PARTY_MAP[top.id].short} is its largest party — ${p.leader} governs as a junior partner.`;
   } else if (largest) {
     verdict = `${p.short} is the biggest party in the Chamber and still short of a majority. Weeks of consultations begin.`;
   } else if (playerShare > p.base) {
