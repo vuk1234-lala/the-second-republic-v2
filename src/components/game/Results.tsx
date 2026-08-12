@@ -1,3 +1,4 @@
+import { NewsFeed } from "@/components/game/NewsFeed";
 import { PARTY_MAP } from "@/lib/game/data";
 import { METRICS, type ElectionResult, type GameState } from "@/lib/game/engine";
 
@@ -71,6 +72,9 @@ export function Results({
           ))}
         </dl>
       </section>
+
+      <NewsFeed state={state} className="mt-6" />
+
 
       <div className="mt-8 text-center">
         <button

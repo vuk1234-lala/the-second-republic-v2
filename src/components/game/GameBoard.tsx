@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { NewsFeed } from "@/components/game/NewsFeed";
 import { PARTIES, PARTY_MAP, type Choice } from "@/lib/game/data";
 import { METRICS, eventsFor, type GameState } from "@/lib/game/engine";
 
@@ -133,16 +134,7 @@ export function GameBoard({
             </ul>
           </section>
 
-          {state.log.length > 0 && (
-            <section className="card-paper p-4">
-              <h3 className="rule-top label-caps pt-2 text-muted-foreground">Your record</h3>
-              <ol className="mt-3 space-y-1.5 text-xs leading-snug text-foreground/80">
-                {state.log.slice(-6).reverse().map((entry, i) => (
-                  <li key={`${entry}-${i}`}>— {entry}</li>
-                ))}
-              </ol>
-            </section>
-          )}
+          <NewsFeed state={state} limit={4} />
         </aside>
       </div>
     </div>
