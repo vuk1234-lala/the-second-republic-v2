@@ -1,14 +1,17 @@
 import { NewsFeed } from "@/components/game/NewsFeed";
 import { PARTY_MAP } from "@/lib/game/data";
 import { METRICS, type ElectionResult, type GameState } from "@/lib/game/engine";
+import { MINISTRIES, type Cabinet } from "@/lib/game/government";
 
 export function Results({
   state,
   result,
+  cabinet,
   onRestart,
 }: {
   state: GameState;
   result: ElectionResult;
+  cabinet?: Cabinet;
   onRestart: () => void;
 }) {
   const party = PARTY_MAP[state.party];
