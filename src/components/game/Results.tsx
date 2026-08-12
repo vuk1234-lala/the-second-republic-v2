@@ -76,6 +76,30 @@ export function Results({
         </dl>
       </section>
 
+      {cabinet && (
+        <section className="card-paper mt-6 p-5">
+          <h2 className="rule-top label-caps pt-2 text-muted-foreground">The cabinet</h2>
+          <ul className="mt-3 divide-y divide-border text-sm">
+            {MINISTRIES.map((m) => {
+              const holder = PARTY_MAP[cabinet[m.key]!];
+              return (
+                <li key={m.key} className="flex items-center justify-between gap-3 py-2">
+                  <span>{m.label}</span>
+                  <span className="label-caps flex items-center gap-2">
+                    <span
+                      className="inline-block h-3 w-3"
+                      style={{ backgroundColor: holder.color }}
+                      aria-hidden
+                    />
+                    {holder.short}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
       <NewsFeed state={state} className="mt-6" />
 
 
