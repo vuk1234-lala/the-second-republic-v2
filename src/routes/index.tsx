@@ -1,24 +1,47 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+import { GameBoard } from "@/components/game/GameBoard";
+import { PartySelect } from "@/components/game/PartySelect";
+import { Results } from "@/components/game/Results";
+import type { Choice, PartyId } from "@/lib/game/data";
+import {
+  TOTAL_TURNS,
+  applyEffect,
+  createGame,
+  runElection,
+  type GameState,
+} from "@/lib/game/engine";
+
+const TITLE = "The Second Republic — Italy 1993 Political Simulation";
+const DESCRIPTION =
+  "Lead Forza Italia, the PDS, Lega Nord, AN, PPI or Rifondazione through Tangentopoli and the collapse of the First Republic to the Italian election of March 1994.";
+
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: TITLE },
+      { name: "description", content: DESCRIPTION },
+      { property: "og:title", content: TITLE },
+      { property: "og:description", content: DESCRIPTION },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
+  const [state, setState] = useState<GameState | null>(null);
+
+  const pick = (id: PartyId) => setState(createGame(id));
+
+  const choose = (choice: Choice) =>
+    setState((prev) => (prev ? applyEffect(prev, choice.effect, choice.label) : prev));
+
+  if (!state) return <PartySelect onPick={pick} />;
+
+  if (state.turn >= TOTAL_TURNS) {
+    return <Results state={state} result={runElection(state)} onRestart={() => setState(null)} />;
+  }
+
+  return <GameBoard state={state} onChoose={choose} />;
 }
