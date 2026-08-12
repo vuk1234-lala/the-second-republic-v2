@@ -1,5 +1,7 @@
-import { EVENTS, PARTIES, PARTY_MAP, type Choice, type Effect } from "@/lib/game/data";
-import { METRICS, TOTAL_TURNS, type GameState } from "@/lib/game/engine";
+import { useState } from "react";
+
+import { PARTIES, PARTY_MAP, type Choice } from "@/lib/game/data";
+import { METRICS, eventsFor, type GameState } from "@/lib/game/engine";
 
 function Meter({ label, value }: { label: string; value: number }) {
   return (
@@ -18,15 +20,6 @@ function Meter({ label, value }: { label: string; value: number }) {
   );
 }
 
-function effectSummary(effect: Effect) {
-  const parts: string[] = [];
-  for (const m of METRICS) {
-    const v = effect[m.key];
-    if (v) parts.push(`${v > 0 ? "+" : ""}${v} ${m.label.toLowerCase()}`);
-  }
-  return parts.join(" · ");
-}
-
 function relationLabel(v: number) {
   if (v >= 45) return "Allied";
   if (v >= 20) return "Friendly";
@@ -42,8 +35,17 @@ export function GameBoard({
   state: GameState;
   onChoose: (choice: Choice) => void;
 }) {
+  const [pending, setPending] = useState<Choice | null>(null);
   const party = PARTY_MAP[state.party];
-  const event = EVENTS[state.turn]!;
+  const events = eventsFor(state.party);
+  const event = events[state.turn]!;
+
+  const confirm = () => {
+    if (!pending) return;
+    const choice = pending;
+    setPending(null);
+    onChoose(choice);
+  };
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
@@ -56,7 +58,7 @@ export function GameBoard({
           </div>
         </div>
         <p className="label-caps text-muted-foreground">
-          Month {state.turn + 1} of {TOTAL_TURNS} · {event.date}
+          Turn {state.turn + 1} of {events.length} · {event.date}
         </p>
       </header>
 
@@ -68,21 +70,36 @@ export function GameBoard({
             {event.body}
           </p>
 
-          <div className="mt-6 space-y-3">
-            {event.choices.map((choice) => (
+          {pending ? (
+            <div className="mt-6">
+              <div className="border border-ink bg-secondary p-4">
+                <p className="label-caps text-muted-foreground">You decided</p>
+                <p className="font-display mt-1 text-base font-semibold">{pending.label}</p>
+                <p className="mt-3 border-l-2 border-ink pl-4 text-base leading-relaxed">
+                  {pending.feedback}
+                </p>
+              </div>
               <button
-                key={choice.label}
-                onClick={() => onChoose(choice)}
-                className="group w-full border border-border bg-background p-4 text-left transition-colors hover:border-ink hover:bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                onClick={confirm}
+                className="font-display mt-4 border border-ink bg-primary px-5 py-3 text-sm font-semibold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                <span className="font-display block text-base font-semibold">{choice.label}</span>
-                <span className="mt-0.5 block text-sm text-foreground/80">{choice.detail}</span>
-                <span className="label-caps mt-2 block text-muted-foreground">
-                  {effectSummary(choice.effect) || "No direct cost"}
-                </span>
+                Continue
               </button>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div className="mt-6 space-y-3">
+              {event.choices.map((choice) => (
+                <button
+                  key={choice.label}
+                  onClick={() => setPending(choice)}
+                  className="group w-full border border-border bg-background p-4 text-left transition-colors hover:border-ink hover:bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <span className="font-display block text-base font-semibold">{choice.label}</span>
+                  <span className="mt-0.5 block text-sm text-foreground/80">{choice.detail}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </article>
 
         <aside className="space-y-6">

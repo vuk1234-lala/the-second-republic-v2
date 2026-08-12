@@ -6,10 +6,10 @@ import { PartySelect } from "@/components/game/PartySelect";
 import { Results } from "@/components/game/Results";
 import type { Choice, PartyId } from "@/lib/game/data";
 import {
-  TOTAL_TURNS,
   applyEffect,
   createGame,
   runElection,
+  totalTurns,
   type GameState,
 } from "@/lib/game/engine";
 
