@@ -44,7 +44,14 @@ export function applyEffect(state: GameState, effect: Effect, note: string): Gam
   return next;
 }
 
-export const TOTAL_TURNS = EVENTS.length;
+/** The campaign a given party actually plays: shared events plus its own. */
+export function eventsFor(party: PartyId) {
+  return EVENTS.filter((e) => !e.only || e.only.includes(party));
+}
+
+export function totalTurns(party: PartyId) {
+  return eventsFor(party).length;
+}
 
 export interface ElectionRow {
   id: PartyId;
