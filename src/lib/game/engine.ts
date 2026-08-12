@@ -97,7 +97,9 @@ export function runElection(state: GameState, chosenAllies?: PartyId[]): Electio
       id: r.id,
       share: Math.round(((r.value / sum) * others + Number.EPSILON) * 10) / 10,
       seats: 0,
-      ally: r.id === state.party || state.relations[r.id] >= 20,
+      ally:
+        r.id === state.party ||
+        (chosenAllies ? chosenAllies.includes(r.id) : state.relations[r.id] >= 20),
     }))
     .sort((a, b) => b.share - a.share);
 
