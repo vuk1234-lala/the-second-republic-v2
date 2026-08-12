@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
+import { CabinetTalks } from "@/components/game/CabinetTalks";
+import { CoalitionTalks } from "@/components/game/CoalitionTalks";
 import { GameBoard } from "@/components/game/GameBoard";
 import { PartySelect } from "@/components/game/PartySelect";
 import { Results } from "@/components/game/Results";
@@ -12,6 +14,7 @@ import {
   totalTurns,
   type GameState,
 } from "@/lib/game/engine";
+import { fillCabinet } from "@/lib/game/government";
 
 const TITLE = "The Second Republic — Italy 1992 Political Simulation";
 const DESCRIPTION =
@@ -29,18 +32,77 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
+type Phase = "coalition" | "cabinet" | "results";
+
 function Index() {
   const [state, setState] = useState<GameState | null>(null);
+  const [phase, setPhase] = useState<Phase>("coalition");
+  const [allies, setAllies] = useState<PartyId[]>([]);
+  const [claimed, setClaimed] = useState<string[]>([]);
 
-  const pick = (id: PartyId) => setState(createGame(id));
+  const reset = () => {
+    setState(null);
+    setPhase("coalition");
+    setAllies([]);
+    setClaimed([]);
+  };
+
+  const pick = (id: PartyId) => {
+    setAllies([]);
+    setClaimed([]);
+    setPhase("coalition");
+    setState(createGame(id));
+  };
 
   const choose = (choice: Choice) =>
     setState((prev) => (prev ? applyEffect(prev, choice.effect, choice.label) : prev));
 
+  const done = !!state && state.turn >= totalTurns(state.party);
+  const projection = useMemo(() => (done && state ? runElection(state, []) : null), [done, state]);
+  const result = useMemo(
+    () => (done && state ? runElection(state, allies) : null),
+    [done, state, allies],
+  );
+
   if (!state) return <PartySelect onPick={pick} />;
 
-  if (state.turn >= totalTurns(state.party)) {
-    return <Results state={state} result={runElection(state)} onRestart={() => setState(null)} />;
+  if (done && projection && result) {
+    if (phase === "coalition") {
+      return (
+        <CoalitionTalks
+          state={state}
+          projection={projection}
+          picked={allies}
+          onToggle={(id) =>
+            setAllies((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
+          }
+          onConfirm={() => setPhase("cabinet")}
+        />
+      );
+    }
+    if (phase === "cabinet") {
+      return (
+        <CabinetTalks
+          state={state}
+          result={result}
+          claimed={claimed}
+          onToggle={(key) =>
+            setClaimed((prev) =>
+              prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
+            )
+          }
+          onConfirm={() => setPhase("results")}
+        />
+      );
+    }
+    return (
+      <Results
+        state={state}
+        result={result}
+        cabinet={fillCabinet(state, result, claimed)}
+        onRestart={reset}
+      />
+    );
   }
 
   return <GameBoard state={state} onChoose={choose} />;

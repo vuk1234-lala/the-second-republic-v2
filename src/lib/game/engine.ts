@@ -71,7 +71,7 @@ export interface ElectionResult {
 }
 
 /** 630 seats in the Chamber, allocated broadly in proportion to the vote. */
-export function runElection(state: GameState): ElectionResult {
+export function runElection(state: GameState, chosenAllies?: PartyId[]): ElectionResult {
   const p = PARTY_MAP[state.party];
   const perf =
     (state.popularity - 45) * 0.28 +
@@ -97,7 +97,9 @@ export function runElection(state: GameState): ElectionResult {
       id: r.id,
       share: Math.round(((r.value / sum) * others + Number.EPSILON) * 10) / 10,
       seats: 0,
-      ally: r.id === state.party || state.relations[r.id] >= 20,
+      ally:
+        r.id === state.party ||
+        (chosenAllies ? chosenAllies.includes(r.id) : state.relations[r.id] >= 20),
     }))
     .sort((a, b) => b.share - a.share);
 
