@@ -39,7 +39,7 @@ function Index() {
 
   if (!state) return <PartySelect onPick={pick} />;
 
-  if (state.turn >= TOTAL_TURNS) {
+  if (state.turn >= totalTurns(state.party)) {
     return <Results state={state} result={runElection(state)} onRestart={() => setState(null)} />;
   }
 
