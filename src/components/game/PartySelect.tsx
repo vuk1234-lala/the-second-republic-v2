@@ -52,7 +52,7 @@ export function PartySelect({ onPick }: { onPick: (id: PartyId) => void }) {
     <section className="mx-auto max-w-5xl px-4 py-10 sm:py-14">
       <header className="text-center">
         <div className="masthead-rule mx-auto h-1.5 w-40" aria-hidden />
-        <p className="label-caps mt-4 text-muted-foreground">Italy · 1993–1994</p>
+        <p className="label-caps mt-4 text-muted-foreground">Italy · 1992–1994</p>
         <h1 className="mt-2 text-4xl leading-[0.95] sm:text-6xl">The Second Republic</h1>
         <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-foreground/85 sm:text-lg">
           The First Republic is collapsing under Tangentopoli. Parties that ruled for fifty years

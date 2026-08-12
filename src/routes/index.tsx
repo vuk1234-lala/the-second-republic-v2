@@ -6,16 +6,16 @@ import { PartySelect } from "@/components/game/PartySelect";
 import { Results } from "@/components/game/Results";
 import type { Choice, PartyId } from "@/lib/game/data";
 import {
-  TOTAL_TURNS,
   applyEffect,
   createGame,
   runElection,
+  totalTurns,
   type GameState,
 } from "@/lib/game/engine";
 
-const TITLE = "The Second Republic — Italy 1993 Political Simulation";
+const TITLE = "The Second Republic — Italy 1992 Political Simulation";
 const DESCRIPTION =
-  "Lead Forza Italia, the PDS, Lega Nord, AN, PPI or Rifondazione through Tangentopoli and the collapse of the First Republic to the Italian election of March 1994.";
+  "Lead Forza Italia, the PDS, Lega Nord, AN, PPI or Rifondazione from the summer of 1992 through Tangentopoli and the collapse of the First Republic to the Italian election of March 1994.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -39,7 +39,7 @@ function Index() {
 
   if (!state) return <PartySelect onPick={pick} />;
 
-  if (state.turn >= TOTAL_TURNS) {
+  if (state.turn >= totalTurns(state.party)) {
     return <Results state={state} result={runElection(state)} onRestart={() => setState(null)} />;
   }
 
