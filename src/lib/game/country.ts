@@ -87,18 +87,25 @@ const r1 = (n: number) => Math.round(n * 10) / 10;
  * back into the budget, and neglect pushes welfare down and crime up.
  */
 export function tickCountry(s: CountryStats): CountryStats {
-  const growth = r1(s.growth + (1.4 - s.growth) * 0.12 - Math.max(0, s.debt - 55) * 0.012);
+  // growth returns to trend, but a mountain of debt drags on it
+  const growth = r1(s.growth + (1.5 - s.growth) * 0.1 - Math.max(0, s.debt - 75) * 0.012);
 
-  const revenue = growth * 0.9;
-  const interest = s.debt * 0.03;
-  const welfareCost = s.welfare * 0.02;
-  const budget = r1(clamp(s.budget + revenue - interest - welfareCost + 1.9, -100, 100));
+  // the structural balance the economy tends towards, then a slow glide to it
+  const target = -6 + growth * 3 - s.debt * 0.05 - (s.welfare - 30) * 0.06;
+  const budget = r1(clamp(s.budget + (target - s.budget) * 0.15, -100, 100));
 
-  const deficitPressure = s.budget < 0 ? -s.budget * 0.02 : -s.budget * 0.025;
-  const debt = r1(clamp(s.debt + deficitPressure - growth * 0.45, 0, 100));
+  // deficits accumulate, surpluses and growth pay the stock down
+  const debt = r1(
+    clamp(
+      s.debt + Math.max(0, -s.budget) * 0.02 - Math.max(0, s.budget) * 0.03 - growth * 0.35,
+      0,
+      100,
+    ),
+  );
 
-  const welfare = r1(clamp(s.welfare - 0.2 - (s.budget < -50 ? 0.3 : 0), 0, 100));
-  const crime = r1(clamp(s.crime + 0.3 - (s.welfare - 40) * 0.02 - growth * 0.15, 0, 100));
+  const welfare = r1(clamp(s.welfare - 0.15 - (s.budget < -50 ? 0.2 : 0), 0, 100));
+  const crime = r1(clamp(s.crime + 0.25 - (s.welfare - 40) * 0.02 - growth * 0.15, 0, 100));
+
 
   const approval = r1(
     clamp(
