@@ -7,11 +7,13 @@ export function Results({
   state,
   result,
   cabinet,
+  onGovern,
   onRestart,
 }: {
   state: GameState;
   result: ElectionResult;
   cabinet?: Cabinet;
+  onGovern?: (() => void) | undefined;
   onRestart: () => void;
 }) {
   const party = PARTY_MAP[state.party];
@@ -66,7 +68,7 @@ export function Results({
 
       <section className="card-paper mt-6 p-5">
         <h2 className="rule-top label-caps pt-2 text-muted-foreground">Final standing</h2>
-        <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-5">
+        <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {METRICS.map((m) => (
             <div key={m.key}>
               <dt className="label-caps text-muted-foreground">{m.label}</dt>
@@ -103,7 +105,15 @@ export function Results({
       <NewsFeed state={state} className="mt-6" />
 
 
-      <div className="mt-8 text-center">
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-center">
+        {result.government && onGovern && (
+          <button
+            onClick={onGovern}
+            className="font-display border border-ink bg-ink px-6 py-3 text-sm font-semibold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-primary"
+          >
+            Take office
+          </button>
+        )}
         <button
           onClick={onRestart}
           className="font-display border border-ink bg-primary px-6 py-3 text-sm font-semibold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-ink"

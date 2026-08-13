@@ -135,8 +135,8 @@ export function runElection(state: GameState, chosenAllies?: PartyId[]): Electio
 
 export const METRICS = [
   { key: "popularity", label: "Popularity" },
-  { key: "economy", label: "Economy" },
   { key: "order", label: "Public order" },
   { key: "integrity", label: "Integrity" },
   { key: "treasury", label: "Party funds" },
 ] as const;
+

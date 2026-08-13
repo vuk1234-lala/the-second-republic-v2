@@ -4,8 +4,10 @@ import { useMemo, useState } from "react";
 import { CabinetTalks } from "@/components/game/CabinetTalks";
 import { CoalitionTalks } from "@/components/game/CoalitionTalks";
 import { GameBoard } from "@/components/game/GameBoard";
+import { GovernBoard } from "@/components/game/GovernBoard";
 import { PartySelect } from "@/components/game/PartySelect";
 import { Results } from "@/components/game/Results";
+import { TermReport } from "@/components/game/TermReport";
 import type { Choice, PartyId } from "@/lib/game/data";
 import {
   applyEffect,
@@ -14,7 +16,16 @@ import {
   totalTurns,
   type GameState,
 } from "@/lib/game/engine";
+import type { GovChoice } from "@/lib/game/govevents";
 import { fillCabinet } from "@/lib/game/government";
+import {
+  applyGovChoice,
+  createGovernment,
+  governEvent,
+  TERM_MONTHS,
+  type GovState,
+} from "@/lib/game/governing";
+
 
 const TITLE = "The Second Republic — Italy 1992 Political Simulation";
 const DESCRIPTION =
@@ -32,30 +43,40 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-type Phase = "coalition" | "cabinet" | "results";
+type Phase = "coalition" | "cabinet" | "results" | "govern";
 
 function Index() {
   const [state, setState] = useState<GameState | null>(null);
   const [phase, setPhase] = useState<Phase>("coalition");
   const [allies, setAllies] = useState<PartyId[]>([]);
   const [claimed, setClaimed] = useState<string[]>([]);
+  const [gov, setGov] = useState<GovState | null>(null);
 
   const reset = () => {
     setState(null);
     setPhase("coalition");
     setAllies([]);
     setClaimed([]);
+    setGov(null);
   };
 
   const pick = (id: PartyId) => {
     setAllies([]);
     setClaimed([]);
+    setGov(null);
     setPhase("coalition");
     setState(createGame(id));
   };
 
   const choose = (choice: Choice) =>
     setState((prev) => (prev ? applyEffect(prev, choice.effect, choice.label) : prev));
+
+  const govern = (choice: GovChoice) =>
+    setGov((prev) => {
+      if (!prev) return prev;
+      const event = governEvent(prev);
+      return event ? applyGovChoice(prev, event, choice) : prev;
+    });
 
   const done = !!state && state.turn >= totalTurns(state.party);
   const projection = useMemo(() => (done && state ? runElection(state, []) : null), [done, state]);
@@ -95,11 +116,21 @@ function Index() {
         />
       );
     }
+    if (phase === "govern" && gov) {
+      if (gov.turn >= TERM_MONTHS || !governEvent(gov)) {
+        return <TermReport gov={gov} onRestart={reset} />;
+      }
+      return <GovernBoard gov={gov} onChoose={govern} />;
+    }
     return (
       <Results
         state={state}
         result={result}
         cabinet={fillCabinet(state, result, claimed)}
+        onGovern={() => {
+          setGov(createGovernment(state.party, fillCabinet(state, result, claimed)));
+          setPhase("govern");
+        }}
         onRestart={reset}
       />
     );
@@ -107,3 +138,4 @@ function Index() {
 
   return <GameBoard state={state} onChoose={choose} />;
 }
+
