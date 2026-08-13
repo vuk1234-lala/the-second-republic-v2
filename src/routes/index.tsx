@@ -4,8 +4,10 @@ import { useMemo, useState } from "react";
 import { CabinetTalks } from "@/components/game/CabinetTalks";
 import { CoalitionTalks } from "@/components/game/CoalitionTalks";
 import { GameBoard } from "@/components/game/GameBoard";
+import { GovernBoard } from "@/components/game/GovernBoard";
 import { PartySelect } from "@/components/game/PartySelect";
 import { Results } from "@/components/game/Results";
+import { TermReport } from "@/components/game/TermReport";
 import type { Choice, PartyId } from "@/lib/game/data";
 import {
   applyEffect,
@@ -14,7 +16,16 @@ import {
   totalTurns,
   type GameState,
 } from "@/lib/game/engine";
+import type { GovChoice } from "@/lib/game/govevents";
 import { fillCabinet } from "@/lib/game/government";
+import {
+  applyGovChoice,
+  createGovernment,
+  governEvent,
+  TERM_MONTHS,
+  type GovState,
+} from "@/lib/game/governing";
+
 
 const TITLE = "The Second Republic — Italy 1992 Political Simulation";
 const DESCRIPTION =
