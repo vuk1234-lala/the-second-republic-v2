@@ -90,14 +90,14 @@ export function tickCountry(s: CountryStats): CountryStats {
   const growth = r1(s.growth + (1.4 - s.growth) * 0.12 - Math.max(0, s.debt - 55) * 0.012);
 
   const revenue = growth * 0.9;
-  const interest = s.debt * 0.05;
-  const welfareCost = s.welfare * 0.03;
-  const budget = r1(clamp(s.budget + revenue - interest - welfareCost + 1.6, -100, 100));
+  const interest = s.debt * 0.03;
+  const welfareCost = s.welfare * 0.02;
+  const budget = r1(clamp(s.budget + revenue - interest - welfareCost + 1.9, -100, 100));
 
-  const deficitPressure = s.budget < 0 ? -s.budget * 0.045 : -s.budget * 0.04;
+  const deficitPressure = s.budget < 0 ? -s.budget * 0.02 : -s.budget * 0.025;
   const debt = r1(clamp(s.debt + deficitPressure - growth * 0.45, 0, 100));
 
-  const welfare = r1(clamp(s.welfare - 0.35 - (s.budget < -50 ? 0.3 : 0), 0, 100));
+  const welfare = r1(clamp(s.welfare - 0.2 - (s.budget < -50 ? 0.3 : 0), 0, 100));
   const crime = r1(clamp(s.crime + 0.3 - (s.welfare - 40) * 0.02 - growth * 0.15, 0, 100));
 
   const approval = r1(
