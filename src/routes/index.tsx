@@ -43,30 +43,40 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-type Phase = "coalition" | "cabinet" | "results";
+type Phase = "coalition" | "cabinet" | "results" | "govern";
 
 function Index() {
   const [state, setState] = useState<GameState | null>(null);
   const [phase, setPhase] = useState<Phase>("coalition");
   const [allies, setAllies] = useState<PartyId[]>([]);
   const [claimed, setClaimed] = useState<string[]>([]);
+  const [gov, setGov] = useState<GovState | null>(null);
 
   const reset = () => {
     setState(null);
     setPhase("coalition");
     setAllies([]);
     setClaimed([]);
+    setGov(null);
   };
 
   const pick = (id: PartyId) => {
     setAllies([]);
     setClaimed([]);
+    setGov(null);
     setPhase("coalition");
     setState(createGame(id));
   };
 
   const choose = (choice: Choice) =>
     setState((prev) => (prev ? applyEffect(prev, choice.effect, choice.label) : prev));
+
+  const govern = (choice: GovChoice) =>
+    setGov((prev) => {
+      if (!prev) return prev;
+      const event = governEvent(prev);
+      return event ? applyGovChoice(prev, event, choice) : prev;
+    });
 
   const done = !!state && state.turn >= totalTurns(state.party);
   const projection = useMemo(() => (done && state ? runElection(state, []) : null), [done, state]);
@@ -106,11 +116,21 @@ function Index() {
         />
       );
     }
+    if (phase === "govern" && gov) {
+      if (gov.turn >= TERM_MONTHS || !governEvent(gov)) {
+        return <TermReport gov={gov} onRestart={reset} />;
+      }
+      return <GovernBoard gov={gov} onChoose={govern} />;
+    }
     return (
       <Results
         state={state}
         result={result}
         cabinet={fillCabinet(state, result, claimed)}
+        onGovern={() => {
+          setGov(createGovernment(state.party, fillCabinet(state, result, claimed)));
+          setPhase("govern");
+        }}
         onRestart={reset}
       />
     );
@@ -118,3 +138,4 @@ function Index() {
 
   return <GameBoard state={state} onChoose={choose} />;
 }
+
