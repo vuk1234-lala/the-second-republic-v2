@@ -1,4 +1,5 @@
 import { PARTIES, type Party, type PartyId } from "@/lib/game/data";
+import { POLL_META } from "@/lib/game/polling";
 
 function Difficulty({ level }: { level: 1 | 2 | 3 }) {
   return (
@@ -26,7 +27,10 @@ function PartyCard({ party, onPick }: { party: Party; onPick: (id: PartyId) => v
             {party.short} · {party.leader}
           </p>
         </div>
-        <span className="font-display text-2xl tabular-nums">{party.base}%</span>
+        <span className="font-display text-right text-2xl tabular-nums">
+        {POLL_META[party.id].r1992 > 0 ? `${POLL_META[party.id].r1992}%` : "new"}
+        <span className="label-caps block text-muted-foreground">in 1992</span>
+      </span>
       </div>
       <p className="text-sm leading-relaxed text-foreground/85">{party.blurb}</p>
       <dl className="mt-1 space-y-1 text-xs">
