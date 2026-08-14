@@ -1,6 +1,5 @@
 import { ElectionDiagram } from "@/components/game/ElectionDiagram";
 import { NewsFeed } from "@/components/game/NewsFeed";
-import { PARTY_MAP } from "@/lib/game/data";
 import { MOMENTS } from "@/lib/game/identity";
 import { metaFor, POLL_META, seatsFromShares, type DiagramRow } from "@/lib/game/polling";
 import { METRICS, type ElectionResult, type GameState } from "@/lib/game/engine";
@@ -92,7 +91,7 @@ export function Results({
           <h2 className="rule-top label-caps pt-2 text-muted-foreground">The cabinet</h2>
           <ul className="mt-3 divide-y divide-border text-sm">
             {MINISTRIES.map((m) => {
-              const holder = PARTY_MAP[cabinet[m.key]!];
+              const holder = metaFor(cabinet[m.key]!, ctx);
               return (
                 <li key={m.key} className="flex items-center justify-between gap-3 py-2">
                   <span>{m.label}</span>
