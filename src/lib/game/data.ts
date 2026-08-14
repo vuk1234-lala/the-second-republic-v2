@@ -74,11 +74,11 @@ export const PARTIES: Party[] = [
   },
   {
     id: "an",
-    name: "Alleanza Nazionale",
-    short: "AN",
+    name: "Movimento Sociale Italiano",
+    short: "MSI",
     leader: "Gianfranco Fini",
-    founded: "MSI in transition, 1992–94",
-    color: "var(--party-an)",
+    founded: "The flame, waiting for Fiuggi",
+    color: "var(--party-msi)",
     base: 13,
     blurb:
       "Lead the post-fascist right out of the ghetto. Respectability in Rome and the south — without losing the faithful.",
@@ -90,8 +90,8 @@ export const PARTIES: Party[] = [
   },
   {
     id: "ppi",
-    name: "Democrazia Cristiana / PPI",
-    short: "PPI",
+    name: "Democrazia Cristiana",
+    short: "DC",
     leader: "Mino Martinazzoli",
     founded: "The DC and its successor, 1992–94",
     color: "var(--party-ppi)",
@@ -139,6 +139,8 @@ export interface Choice {
   label: string;
   detail: string;
   effect: Effect;
+  /** a marker recorded on the game state (name changes, the announcement…) */
+  flag?: string;
   /** what the papers, the party and the country make of it — shown after choosing */
   feedback: string;
 }
@@ -841,29 +843,32 @@ export const EVENTS: GameEvent[] = [
     id: "ppi-symbol",
     date: "December 1993",
     headline: "The shield and the name",
-    body: "The congress must decide whether Democrazia Cristiana still exists. Some want the Partito Popolare of Sturzo; others want to keep the old symbol whatever the cost.",
+    body: "The congress must decide what this party is called. Keep the shield of Democrazia Cristiana, refound it as Sturzo's Partito Popolare, or fold it into a centre pact around the referendum hero Mario Segni.",
     only: ["ppi"],
     choices: [
       {
+        label: "Keep the name Democrazia Cristiana",
+        detail: "Fifty years of governing are not an embarrassment.",
+        effect: { order: 4, treasury: 5, integrity: -3, popularity: -3 },
+        flag: "dc:dc",
+        feedback:
+          "The apparatus, the parishes and the funds stay exactly where they are — around a name that half the country now uses as an insult. Polling holds in the south and collapses in Lombardy.",
+      },
+      {
         label: "Refound as the Partito Popolare",
-        detail: "A new name, a smaller, cleaner party.",
-        effect: { integrity: 5, popularity: -2, treasury: -4, order: -2 },
+        detail: "A new name, a smaller and visibly cleaner party.",
+        effect: { integrity: 6, popularity: 2, treasury: -4, order: -2, relations: { pds: 4 } },
+        flag: "dc:ppi",
         feedback:
-          "The break is real and the polling dips before it steadies. Catholic associations begin returning your calls.",
+          "The break is real: some notables walk out with their clienteles, but Catholic associations return your calls and the word 'Tangentopoli' stops appearing in the same paragraph as your name.",
       },
       {
-        label: "Keep the DC name and fight",
-        detail: "Fifty years are not an embarrassment.",
-        effect: { popularity: -4, order: 3, treasury: 3, integrity: -3 },
+        label: "Become the Patto Segni",
+        detail: "A centre pole built on the referendum victory.",
+        effect: { popularity: 5, integrity: 4, treasury: -6, order: -4, relations: { pds: 5, fi: -8 } },
+        flag: "dc:segni",
         feedback:
-          "The apparatus stays intact around a name half the country now uses as an insult.",
-      },
-      {
-        label: "Refound, and open to Segni",
-        detail: "A centre pole with a referendum hero on it.",
-        effect: { popularity: 3, integrity: 3, order: -3, relations: { pds: 5, fi: -6 } },
-        feedback:
-          "The centre suddenly looks like a project rather than a remnant. The right calls it a left-wing manoeuvre before the ink dries.",
+          "For a fortnight you are the novelty of the campaign, courted by both blocs at once. The old machine, however, is gone: what you have now is a name, a face and very little else.",
       },
     ],
   },
@@ -907,6 +912,7 @@ export const EVENTS: GameEvent[] = [
         label: "'Italy is the country I love'",
         detail: "Warm, personal, above the parties.",
         effect: { popularity: 6, integrity: -1, order: 1 },
+        flag: "fi:entry",
         feedback:
           "It is parodied within hours and imitated within weeks. Twelve million people watch it and most of them remember it.",
       },
@@ -914,6 +920,7 @@ export const EVENTS: GameEvent[] = [
         label: "A hard anti-communist message",
         detail: "Name the enemy in the first sentence.",
         effect: { popularity: 4, order: 2, integrity: -3, relations: { pds: -12, prc: -10, an: 6 } },
+        flag: "fi:entry",
         feedback:
           "It mobilises the frightened middle and hands the left an easy caricature of you.",
       },
@@ -921,6 +928,7 @@ export const EVENTS: GameEvent[] = [
         label: "A technical programme speech",
         detail: "Numbers, tables, a plan for jobs.",
         effect: { economy: 3, integrity: 3, popularity: -2 },
+        flag: "fi:entry",
         feedback:
           "Economists rate it seriously. Audience research shows viewers switched over after four minutes.",
       },
@@ -988,30 +996,33 @@ export const EVENTS: GameEvent[] = [
   {
     id: "an-congress",
     date: "February 1994",
-    headline: "Alleanza Nazionale takes the field",
-    body: "A new name, a new list open to conservatives without an MSI card. Almirante's widow is in the front row.",
+    headline: "The turn at Fiuggi",
+    body: "In the halls at Fiuggi the MSI is asked to dissolve itself into Alleanza Nazionale: a new name, a new tricolour badge, lists open to conservatives who never carried a party card. Almirante's widow is in the front row.",
     only: ["an"],
     choices: [
       {
-        label: "Recruit outside names",
-        detail: "Admirals, judges, professors on the lists.",
-        effect: { popularity: 4, integrity: 3, order: -1, relations: { fi: 8, ppi: 4 } },
+        label: "Proclaim Alleanza Nazionale",
+        detail: "Dissolve the MSI, take the new name and the new badge.",
+        effect: { popularity: 6, integrity: 4, order: -2, relations: { fi: 8, ppi: 4 } },
+        flag: "an:fiuggi",
         feedback:
-          "The lists look like a party of government for the first time. Historic militants complain about parachuted candidates.",
+          "The flame survives in the corner of the badge and nowhere else. Overnight you are a party of government in the bulletins, and the next poll is the best figure the Italian right has seen since the war.",
       },
       {
-        label: "Reward the militants with the seats",
-        detail: "Those who carried the party through the years.",
-        effect: { order: 4, treasury: 2, popularity: -3 },
+        label: "Alleanza Nazionale, and condemn fascism outright",
+        detail: "Say the word on camera, in the hall, now.",
+        effect: { integrity: 7, popularity: 4, order: -4, relations: { ppi: 8, pds: 5, fi: 6 } },
+        flag: "an:fiuggi",
         feedback:
-          "The federations are loyal and delighted. Your national image does not move an inch.",
+          "Front pages everywhere and a standing ovation from about half the room. Moderate voters move to you in numbers; some historic sections in Rome and Naples do not applaud at all.",
       },
       {
-        label: "Condemn fascism explicitly",
-        detail: "Say the word, on camera, now.",
-        effect: { integrity: 6, popularity: 2, order: -3, relations: { ppi: 8, pds: 5 } },
+        label: "Refuse — the MSI keeps its name",
+        detail: "Nothing of our history is up for negotiation.",
+        effect: { order: 5, treasury: 3, popularity: -4, relations: { fi: -6, ppi: -6 } },
+        flag: "an:flame",
         feedback:
-          "Front pages everywhere and a standing ovation from about half the hall. Some sections in Rome and Naples do not applaud at all.",
+          "The federations are loyal and delighted. You remain the MSI, the ghetto stays shut, and the evening programmes go on inviting somebody else.",
       },
     ],
   },
