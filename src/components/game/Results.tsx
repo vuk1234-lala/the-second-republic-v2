@@ -1,5 +1,8 @@
+import { ElectionDiagram } from "@/components/game/ElectionDiagram";
 import { NewsFeed } from "@/components/game/NewsFeed";
 import { PARTY_MAP } from "@/lib/game/data";
+import { MOMENTS } from "@/lib/game/identity";
+import { metaFor, POLL_META, seatsFromShares, type DiagramRow } from "@/lib/game/polling";
 import { METRICS, type ElectionResult, type GameState } from "@/lib/game/engine";
 import { MINISTRIES, type Cabinet } from "@/lib/game/government";
 
@@ -16,8 +19,38 @@ export function Results({
   onGovern?: (() => void) | undefined;
   onRestart: () => void;
 }) {
-  const party = PARTY_MAP[state.party];
-  const max = Math.max(...result.rows.map((r) => r.share));
+  const ctx = { player: state.party, flags: state.flags, month: MOMENTS.election };
+  const party = metaFor(state.party, ctx);
+  const named = result.rows.reduce((a, b) => a + b.share, 0);
+  const diagram: DiagramRow[] = [
+    ...result.rows.map((row) => {
+      const meta = metaFor(row.id, ctx);
+      return {
+        id: row.id,
+        order: meta.order,
+        name: meta.name,
+        short: meta.short,
+        color: meta.color,
+        share: row.share,
+        seats: row.seats,
+        mine: row.id === state.party,
+        ally: row.ally,
+      };
+    }),
+    {
+      id: "minor",
+      order: POLL_META.minor.order,
+      name: POLL_META.minor.name,
+      short: POLL_META.minor.short,
+      color: POLL_META.minor.color,
+      share: Math.round((100 - named) * 10) / 10,
+      seats: 0,
+    },
+  ];
+  seatsFromShares(diagram).forEach((seats, i) => {
+    const row = diagram[i];
+    if (row && row.id === "minor") row.seats = seats;
+  });
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
@@ -32,33 +65,9 @@ export function Results({
 
       <section className="card-paper mt-8 p-5 sm:p-7">
         <h2 className="rule-top label-caps pt-2 text-muted-foreground">The result</h2>
-        <ul className="mt-4 space-y-3">
-          {result.rows.map((row) => {
-            const p = PARTY_MAP[row.id];
-            const mine = row.id === state.party;
-            return (
-              <li key={row.id}>
-                <div className="flex items-baseline justify-between gap-3 text-sm">
-                  <span className={mine ? "font-display font-semibold" : ""}>
-                    {p.short} — {p.name}
-                    {row.ally && !mine && (
-                      <span className="label-caps ml-2 text-accent">coalition</span>
-                    )}
-                  </span>
-                  <span className="font-display tabular-nums">
-                    {row.share.toFixed(1)}% · {row.seats} seats
-                  </span>
-                </div>
-                <div className="mt-1 h-3 w-full border border-border bg-secondary">
-                  <div
-                    className="h-full transition-[width] duration-700"
-                    style={{ width: `${(row.share / max) * 100}%`, backgroundColor: p.color }}
-                  />
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+        <div className="mt-4">
+          <ElectionDiagram rows={diagram} />
+        </div>
         <p className="rule-top mt-5 pt-3 text-sm text-foreground/85">
           {party.short} took <strong>{result.playerShare.toFixed(1)}%</strong>. Your bloc holds{" "}
           <strong>{result.coalitionSeats}</strong> of 630 seats ({result.coalitionShare.toFixed(1)}%
