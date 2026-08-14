@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
+import { Election1992 } from "@/components/game/Election1992";
 import { CabinetTalks } from "@/components/game/CabinetTalks";
 import { CoalitionTalks } from "@/components/game/CoalitionTalks";
 import { GameBoard } from "@/components/game/GameBoard";
@@ -43,11 +44,11 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-type Phase = "coalition" | "cabinet" | "results" | "govern";
+type Phase = "brief" | "coalition" | "cabinet" | "results" | "govern";
 
 function Index() {
   const [state, setState] = useState<GameState | null>(null);
-  const [phase, setPhase] = useState<Phase>("coalition");
+  const [phase, setPhase] = useState<Phase>("brief");
   const [allies, setAllies] = useState<PartyId[]>([]);
   const [claimed, setClaimed] = useState<string[]>([]);
   const [gov, setGov] = useState<GovState | null>(null);
@@ -64,12 +65,12 @@ function Index() {
     setAllies([]);
     setClaimed([]);
     setGov(null);
-    setPhase("coalition");
+    setPhase("brief");
     setState(createGame(id));
   };
 
   const choose = (choice: Choice) =>
-    setState((prev) => (prev ? applyEffect(prev, choice.effect, choice.label) : prev));
+    setState((prev) => (prev ? applyEffect(prev, choice.effect, choice.label, choice.flag) : prev));
 
   const govern = (choice: GovChoice) =>
     setGov((prev) => {
@@ -86,6 +87,9 @@ function Index() {
   );
 
   if (!state) return <PartySelect onPick={pick} />;
+  if (phase === "brief") {
+    return <Election1992 party={state.party} onStart={() => setPhase("coalition")} />;
+  }
 
   if (done && projection && result) {
     if (phase === "coalition") {
@@ -128,7 +132,7 @@ function Index() {
         result={result}
         cabinet={fillCabinet(state, result, claimed)}
         onGovern={() => {
-          setGov(createGovernment(state.party, fillCabinet(state, result, claimed)));
+          setGov(createGovernment(state.party, fillCabinet(state, result, claimed), state.flags));
           setPhase("govern");
         }}
         onRestart={reset}
