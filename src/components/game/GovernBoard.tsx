@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { CountryTab } from "@/components/game/CountryTab";
-import { PARTY_MAP } from "@/lib/game/data";
+import { finalIdentity } from "@/lib/game/identity";
 import type { GovChoice } from "@/lib/game/govevents";
 import { MINISTRIES } from "@/lib/game/government";
 import { governEvent, monthLabel, TERM_MONTHS, type GovState } from "@/lib/game/governing";
@@ -17,10 +17,10 @@ export function GovernBoard({
 }) {
   const [tab, setTab] = useState<Tab>("desk");
   const [pending, setPending] = useState<GovChoice | null>(null);
-  const party = PARTY_MAP[gov.party];
+  const party = finalIdentity(gov.party, gov.party, gov.flags);
   const event = governEvent(gov)!;
   const ministry = MINISTRIES.find((m) => m.key === event.ministry)!;
-  const holder = PARTY_MAP[gov.cabinet[event.ministry] ?? gov.party];
+  const holder = finalIdentity(gov.cabinet[event.ministry] ?? gov.party, gov.party, gov.flags);
 
   const confirm = () => {
     if (!pending) return;
@@ -36,7 +36,7 @@ export function GovernBoard({
           <span className="h-8 w-1.5" style={{ backgroundColor: party.color }} aria-hidden />
           <div>
             <h1 className="text-2xl leading-none">{party.name} in government</h1>
-            <p className="label-caps mt-1 text-muted-foreground">{party.leader}</p>
+            <p className="label-caps mt-1 text-muted-foreground">{party.short}</p>
           </div>
         </div>
         <p className="label-caps text-muted-foreground">

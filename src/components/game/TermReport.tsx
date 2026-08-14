@@ -1,11 +1,22 @@
 import { CountryTab } from "@/components/game/CountryTab";
+import { ElectionDiagram } from "@/components/game/ElectionDiagram";
 import { START_COUNTRY } from "@/lib/game/country";
-import { PARTY_MAP } from "@/lib/game/data";
+import { finalIdentity } from "@/lib/game/identity";
+import { election1999 } from "@/lib/game/polling";
 import { MINISTRIES } from "@/lib/game/government";
 import { termVerdict, type GovState } from "@/lib/game/governing";
 
 export function TermReport({ gov, onRestart }: { gov: GovState; onRestart: () => void }) {
-  const party = PARTY_MAP[gov.party];
+  const party = finalIdentity(gov.party, gov.party, gov.flags);
+  const vote = election1999({
+    party: gov.party,
+    flags: gov.flags,
+    approval: gov.stats.approval,
+    growth: gov.stats.growth,
+    crime: gov.stats.crime,
+    welfare: gov.stats.welfare,
+    debt: gov.stats.debt,
+  });
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
@@ -22,7 +33,7 @@ export function TermReport({ gov, onRestart }: { gov: GovState; onRestart: () =>
           <h3 className="rule-top label-caps pt-2 text-muted-foreground">The cabinet that governed</h3>
           <ul className="mt-3 divide-y divide-border text-sm">
             {MINISTRIES.map((m) => {
-              const holder = PARTY_MAP[gov.cabinet[m.key] ?? gov.party];
+              const holder = finalIdentity(gov.cabinet[m.key] ?? gov.party, gov.party, gov.flags);
               return (
                 <li key={m.key} className="flex items-center justify-between gap-3 py-2">
                   <span>{m.label}</span>
@@ -40,6 +51,16 @@ export function TermReport({ gov, onRestart }: { gov: GovState; onRestart: () =>
           </ul>
         </section>
       </div>
+
+      <section className="card-paper mt-6 p-5 sm:p-7">
+        <h2 className="rule-top label-caps pt-2 text-muted-foreground">
+          The general election · June 1999
+        </h2>
+        <p className="mt-3 text-base leading-relaxed">{vote.verdict}</p>
+        <div className="mt-4">
+          <ElectionDiagram rows={vote.rows} />
+        </div>
+      </section>
 
       <section className="card-paper mt-6 p-5">
         <h2 className="rule-top label-caps pt-2 text-muted-foreground">Acts of the legislature</h2>

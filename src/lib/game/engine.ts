@@ -1,4 +1,6 @@
 import { EVENTS, PARTIES, PARTY_MAP, type Effect, type PartyId } from "./data";
+import { monthIndex, MOMENTS } from "./identity";
+
 
 export interface GameState {
   party: PartyId;
@@ -10,6 +12,8 @@ export interface GameState {
   treasury: number;
   relations: Record<PartyId, number>;
   log: string[];
+  /** markers raised by choices (name changes, the television announcement…) */
+  flags: string[];
 }
 
 const clamp = (n: number) => Math.max(0, Math.min(100, Math.round(n)));
@@ -21,10 +25,15 @@ export function createGame(party: PartyId): GameState {
   for (const other of PARTIES) {
     relations[other.id] = other.id === party ? 100 : (p.relations[other.id] ?? 0);
   }
-  return { party, turn: 0, ...p.start, relations, log: [] };
+  return { party, turn: 0, ...p.start, relations, log: [], flags: [] };
 }
 
-export function applyEffect(state: GameState, effect: Effect, note: string): GameState {
+export function applyEffect(
+  state: GameState,
+  effect: Effect,
+  note: string,
+  flag?: string,
+): GameState {
   const next: GameState = {
     ...state,
     popularity: clamp(state.popularity + (effect.popularity ?? 0)),
@@ -35,6 +44,7 @@ export function applyEffect(state: GameState, effect: Effect, note: string): Gam
     relations: { ...state.relations },
     turn: state.turn + 1,
     log: [...state.log, note],
+    flags: flag && !state.flags.includes(flag) ? [...state.flags, flag] : state.flags,
   };
   for (const [id, delta] of Object.entries(effect.relations ?? {})) {
     const key = id as PartyId;
@@ -43,6 +53,14 @@ export function applyEffect(state: GameState, effect: Effect, note: string): Gam
   }
   return next;
 }
+
+/** The month the campaign has reached, as an absolute index (Jan 1992 = 0). */
+export function campaignMonth(state: GameState): number {
+  const events = eventsFor(state.party);
+  const event = events[Math.min(state.turn, events.length - 1)];
+  return event ? monthIndex(event.date) : MOMENTS.start;
+}
+
 
 /** The campaign a given party actually plays: shared events plus its own. */
 export function eventsFor(party: PartyId) {
@@ -134,7 +152,6 @@ export function runElection(state: GameState, chosenAllies?: PartyId[]): Electio
 }
 
 export const METRICS = [
-  { key: "popularity", label: "Popularity" },
   { key: "order", label: "Public order" },
   { key: "integrity", label: "Integrity" },
   { key: "treasury", label: "Party funds" },

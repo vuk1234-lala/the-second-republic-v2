@@ -1,8 +1,10 @@
 import { useState } from "react";
 
 import { NewsFeed } from "@/components/game/NewsFeed";
-import { PARTIES, PARTY_MAP, type Choice } from "@/lib/game/data";
-import { METRICS, eventsFor, type GameState } from "@/lib/game/engine";
+import { PollsTab } from "@/components/game/PollsTab";
+import { PARTIES, type Choice } from "@/lib/game/data";
+import { METRICS, campaignMonth, eventsFor, type GameState } from "@/lib/game/engine";
+import { identityOf } from "@/lib/game/identity";
 
 function Meter({ label, value }: { label: string; value: number }) {
   return (
@@ -37,7 +39,10 @@ export function GameBoard({
   onChoose: (choice: Choice) => void;
 }) {
   const [pending, setPending] = useState<Choice | null>(null);
-  const party = PARTY_MAP[state.party];
+  const [tab, setTab] = useState<"desk" | "polls">("desk");
+  const month = campaignMonth(state);
+  const ctx = { player: state.party, flags: state.flags, month };
+  const party = identityOf(state.party, ctx);
   const events = eventsFor(state.party);
   const event = events[state.turn]!;
 
@@ -55,7 +60,9 @@ export function GameBoard({
           <span className="h-8 w-1.5" style={{ backgroundColor: party.color }} aria-hidden />
           <div>
             <h1 className="text-2xl leading-none">{party.name}</h1>
-            <p className="label-caps mt-1 text-muted-foreground">{party.leader}</p>
+            <p className="label-caps mt-1 text-muted-foreground">
+              {party.short} · Turn {state.turn + 1}
+            </p>
           </div>
         </div>
         <p className="label-caps text-muted-foreground">
@@ -63,6 +70,25 @@ export function GameBoard({
         </p>
       </header>
 
+      <div className="mt-4 flex gap-2">
+        {([["desk", "The campaign"], ["polls", "Polls"]] as const).map(([key, label]) => (
+          <button
+            key={key}
+            onClick={() => setTab(key)}
+            className={`font-display border border-ink px-4 py-2 text-xs font-semibold tracking-widest uppercase ${
+              tab === key ? "bg-ink text-primary-foreground" : "bg-background"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {tab === "polls" ? (
+        <div className="mt-6 max-w-2xl">
+          <PollsTab state={state} />
+        </div>
+      ) : (
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_260px]">
         <article className="card-paper p-5 sm:p-7">
           <p className="label-caps text-primary">{event.date}</p>
@@ -116,27 +142,31 @@ export function GameBoard({
           <section className="card-paper p-4">
             <h3 className="rule-top label-caps pt-2 text-muted-foreground">Other parties</h3>
             <ul className="mt-3 space-y-2 text-sm">
-              {PARTIES.filter((p) => p.id !== state.party).map((p) => (
+              {PARTIES.filter((p) => p.id !== state.party).map((p) => {
+                const ident = identityOf(p.id, ctx);
+                return (
                 <li key={p.id} className="flex items-center justify-between gap-2">
                   <span className="flex items-center gap-2">
                     <span
                       className="inline-block h-3 w-3"
-                      style={{ backgroundColor: p.color }}
+                      style={{ backgroundColor: ident.color }}
                       aria-hidden
                     />
-                    {p.short}
+                    {ident.short}
                   </span>
                   <span className="label-caps text-muted-foreground">
                     {relationLabel(state.relations[p.id])}
                   </span>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           </section>
 
           <NewsFeed state={state} limit={4} />
         </aside>
       </div>
+      )}
     </div>
   );
 }

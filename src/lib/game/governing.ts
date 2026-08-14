@@ -56,6 +56,8 @@ export interface GovDispatch {
 
 export interface GovState {
   party: PartyId;
+  /** flags carried over from the campaign (party names) */
+  flags: string[];
   cabinet: Cabinet;
   turn: number;
   stats: CountryStats;
@@ -64,9 +66,10 @@ export interface GovState {
   log: GovDispatch[];
 }
 
-export function createGovernment(party: PartyId, cabinet: Cabinet): GovState {
+export function createGovernment(party: PartyId, cabinet: Cabinet, flags: string[] = []): GovState {
   return {
     party,
+    flags,
     cabinet,
     turn: 0,
     stats: { ...START_COUNTRY },
