@@ -118,20 +118,20 @@ function baseline(id: PollId, ctx: Ctx): number {
       );
     
     }
+    case "minor":
+      // the old minor lists slowly shed votes to the new formations
+      return Math.max(13.5, 20.9 - Math.min(since, 21) * 0.32);
     default:
       return 0;
   }
 }
 
 function computePoll(ctx: Ctx, index: number): Poll {
-  const raw = RESULT_1992.filter((p) => p.id !== "minor").map((p) => {
+  const rows = RESULT_1992.map((p) => {
     const value = Math.max(0, baseline(p.id, ctx));
     const jitter = value === 0 ? 0 : noise(`${p.id}-${ctx.month}-${index}`) * SAMPLING;
-    return { id: p.id, value: Math.max(value === 0 ? 0 : 0.3, value + jitter) };
+    return { id: p.id as PollId, value: Math.max(value === 0 ? 0 : 0.3, value + jitter) };
   });
-  const named = raw.reduce((a, b) => a + b.value, 0);
-  const minor = Math.max(4, 100 - named);
-  const rows = [...raw, { id: "minor" as PollId, value: minor }];
   const total = rows.reduce((a, b) => a + b.value, 0);
 
   return {
@@ -254,9 +254,7 @@ export function election1999(input: {
     const value = incumbent ? base + record : base - record * 0.22;
     return { id: p.id, value: Math.max(1.5, value) };
   });
-  const named = shares.reduce((a, b) => a + b.value, 0);
-  const minor = Math.max(5, 100 - named);
-  const all = [...shares, { id: "minor" as PollId, value: minor }];
+  const all = [...shares, { id: "minor" as PollId, value: 13 }];
   const total = all.reduce((a, b) => a + b.value, 0);
 
   const rows: DiagramRow[] = all
