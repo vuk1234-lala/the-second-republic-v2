@@ -34,8 +34,8 @@ export const PARTIES: Party[] = [
     base: 21,
     blurb:
       "A television empire turned political movement. Promise a million jobs, a new Italian miracle, and a wall against the ex-communists.",
-    strengths: "Media reach, money, fresh face",
-    weakness: "Conflict of interest, magistrates",
+    strengths: "An enormous media empire · Deep connections with the old republic · A fresh new face",
+    weakness: "The pool of Mani Pulite won't leave you alone",
     difficulty: 1,
     relations: { lega: 25, an: 25, ppi: -10, pds: -60, prc: -80 },
     start: { popularity: 34, economy: 44, order: 50, integrity: 44, treasury: 74 },
@@ -133,6 +133,8 @@ export interface Effect {
   integrity?: number;
   treasury?: number;
   relations?: Partial<Record<PartyId, number>>;
+  /** headquarters effects — read only when the player leads Forza Italia */
+  hq?: HqDelta;
 }
 
 export interface Choice {
@@ -152,6 +154,8 @@ export interface GameEvent {
   body: string;
   /** if set, the event only appears for these parties */
   only?: PartyId[];
+  /** if set, the event is hidden from these parties (they get their own version) */
+  not?: PartyId[];
   choices: Choice[];
 }
 

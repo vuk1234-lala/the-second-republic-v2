@@ -55,7 +55,13 @@ export function applyEffect(
     log: [...state.log, note],
     flags: flag && !state.flags.includes(flag) ? [...state.flags, flag] : state.flags,
   };
+  const drift = isFi ? axisRelationDrift(hq) : {};
   for (const [id, delta] of Object.entries(effect.relations ?? {})) {
+    const key = id as PartyId;
+    if (key === state.party) continue;
+    next.relations[key] = clampRel(next.relations[key] + (delta as number));
+  }
+  for (const [id, delta] of Object.entries(drift)) {
     const key = id as PartyId;
     if (key === state.party) continue;
     next.relations[key] = clampRel(next.relations[key] + (delta as number));
@@ -73,7 +79,9 @@ export function campaignMonth(state: GameState): number {
 
 /** The campaign a given party actually plays: shared events plus its own. */
 export function eventsFor(party: PartyId) {
-  return EVENTS.filter((e) => !e.only || e.only.includes(party));
+  return EVENTS.filter(
+    (e) => (!e.only || e.only.includes(party)) && !(e.not ?? []).includes(party),
+  );
 }
 
 export function totalTurns(party: PartyId) {
