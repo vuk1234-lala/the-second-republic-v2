@@ -1,4 +1,5 @@
 import { EVENTS, PARTIES, PARTY_MAP, type Effect, type PartyId } from "./data";
+import { axisRelationDrift, campaignMultiplier, createHq, stepHq, type HqState } from "./hq";
 import { monthIndex, MOMENTS } from "./identity";
 
 
@@ -14,6 +15,8 @@ export interface GameState {
   log: string[];
   /** markers raised by choices (name changes, the television announcement…) */
   flags: string[];
+  /** Forza Italia's headquarters at Milano 2 — only meaningful when playing FI */
+  hq: HqState;
 }
 
 const clamp = (n: number) => Math.max(0, Math.min(100, Math.round(n)));
@@ -25,7 +28,7 @@ export function createGame(party: PartyId): GameState {
   for (const other of PARTIES) {
     relations[other.id] = other.id === party ? 100 : (p.relations[other.id] ?? 0);
   }
-  return { party, turn: 0, ...p.start, relations, log: [], flags: [] };
+  return { party, turn: 0, ...p.start, relations, log: [], flags: [], hq: createHq() };
 }
 
 export function applyEffect(
@@ -34,9 +37,15 @@ export function applyEffect(
   note: string,
   flag?: string,
 ): GameState {
+  const isFi = state.party === "fi";
+  const rawPop = effect.popularity ?? 0;
+  const gain = isFi && rawPop > 0 ? rawPop * campaignMultiplier(state.hq) : rawPop;
+  const hq = isFi ? stepHq(state.hq, effect.hq, gain) : state.hq;
+
   const next: GameState = {
     ...state,
-    popularity: clamp(state.popularity + (effect.popularity ?? 0)),
+    hq,
+    popularity: clamp(state.popularity + gain),
     economy: clamp(state.economy + (effect.economy ?? 0)),
     order: clamp(state.order + (effect.order ?? 0)),
     integrity: clamp(state.integrity + (effect.integrity ?? 0)),
@@ -46,7 +55,13 @@ export function applyEffect(
     log: [...state.log, note],
     flags: flag && !state.flags.includes(flag) ? [...state.flags, flag] : state.flags,
   };
+  const drift = isFi ? axisRelationDrift(hq) : {};
   for (const [id, delta] of Object.entries(effect.relations ?? {})) {
+    const key = id as PartyId;
+    if (key === state.party) continue;
+    next.relations[key] = clampRel(next.relations[key] + (delta as number));
+  }
+  for (const [id, delta] of Object.entries(drift)) {
     const key = id as PartyId;
     if (key === state.party) continue;
     next.relations[key] = clampRel(next.relations[key] + (delta as number));
@@ -64,7 +79,9 @@ export function campaignMonth(state: GameState): number {
 
 /** The campaign a given party actually plays: shared events plus its own. */
 export function eventsFor(party: PartyId) {
-  return EVENTS.filter((e) => !e.only || e.only.includes(party));
+  return EVENTS.filter(
+    (e) => (!e.only || e.only.includes(party)) && !(e.not ?? []).includes(party),
+  );
 }
 
 export function totalTurns(party: PartyId) {
