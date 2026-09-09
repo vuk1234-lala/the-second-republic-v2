@@ -376,32 +376,49 @@ export const EVENTS: GameEvent[] = [
     ],
   },
   {
-    id: "fi-decision",
+    id: "fi-focus",
     date: "August 1992",
-    headline: "Your managers present a survey nobody was supposed to see",
-    body: "A moderate electorate of ten million is homeless. The question is whether a businessman should be the one to house it.",
+    headline: "A survey nobody was supposed to see",
+    body: "Ten million moderate voters are about to be left without a party, and your managers have costed three different ways of using the fact. Whatever the headquarters concentrates on this summer will shape everything that follows.",
     only: ["fi"],
     choices: [
       {
-        label: "Quietly build the clubs",
-        detail: "Publitalia's men, a network, no announcement yet.",
-        effect: { treasury: 4, order: 3, popularity: 2, integrity: -2 },
+        label: "Grow the empire",
+        detail: "Advertising, networks, the balance sheet before the politics.",
+        effect: {
+          treasury: 5,
+          economy: 2,
+          integrity: -1,
+          hq: { mediaset: 16, axis: -6 },
+        },
         feedback:
-          "Within weeks there are hundreds of clubs and no press coverage at all. Exactly as planned.",
+          "Publitalia takes another slice of the advertising market and the banks relax. No newspaper writes a word about your politics, because there is not yet anything to write about — and reach, in this country, is the only currency that never devalues.",
       },
       {
-        label: "Fund existing centre parties instead",
-        detail: "Back others, stay behind the camera.",
-        effect: { treasury: -4, popularity: -2, relations: { ppi: 10, an: 4 } },
+        label: "Curry favours",
+        detail: "Dinners in Rome with the men who still sign decrees.",
+        effect: {
+          treasury: 3,
+          order: 3,
+          integrity: -4,
+          hq: { dinosaurs: 18, mediaset: 8 },
+          relations: { ppi: 8, pds: -3 },
+        },
         feedback:
-          "Grateful politicians, no movement in the polls. Your own executives think you have wasted a historic opening.",
+          "Undersecretaries, party treasurers and two ministers accept the invitation and the concessions move in the right direction. Your own press office notes, uneasily, how many of the guests are under investigation.",
       },
       {
-        label: "Hint publicly that you may 'take the field'",
-        detail: "One sentence to a friendly interviewer.",
-        effect: { popularity: 4, integrity: -3, relations: { pds: -10, prc: -8 } },
+        label: "Start hammering on the old system",
+        detail: "Let the bulletins say what the country is already saying.",
+        effect: {
+          popularity: 4,
+          integrity: 3,
+          order: -2,
+          hq: { alt: 3.2, dinosaurs: -10, axis: 6 },
+          relations: { ppi: -8, pds: -4 },
+        },
         feedback:
-          "The sentence leads every bulletin. The left announces a conflict-of-interest law before you have even founded a party.",
+          "Your talk shows discover the tax on small business and the arrogance of the parties in the same week, and the audience figures are extraordinary. In Rome, several people who used to return your calls now take a message.",
       },
     ],
   },
@@ -464,10 +481,58 @@ export const EVENTS: GameEvent[] = [
     ],
   },
   {
+    id: "fi-craxi",
+    date: "December 1992",
+    headline: "The avviso di garanzia for the man who made you",
+    body: "Bettino Craxi is formally under investigation. He was the best man at your wedding and the author of every decree that let three networks exist. He is finished unless somebody with twenty million viewers decides otherwise.",
+    only: ["fi"],
+    choices: [
+      {
+        label: "Save him, and take the reward",
+        detail: "Three networks against the public outcry, night after night.",
+        effect: {
+          integrity: -7,
+          order: 4,
+          popularity: -3,
+          hq: { mediaset: 22, dinosaurs: 20, alt: -1.5 },
+          relations: { ppi: 10, pds: -10, prc: -12 },
+        },
+        flag: "psi:saved",
+        feedback:
+          "For six weeks your anchormen dismantle the prosecutors, and the wave breaks. The Socialists survive with a scar instead of a grave, and within a month parliament passes a law on television concessions so precisely tailored to your companies that the papers invent a name for it: ad personam. Half of Italy now believes the two things are connected, because they are.",
+      },
+      {
+        label: "Say nothing and let him fall",
+        detail: "No comment, no coverage, no favours called in.",
+        effect: {
+          integrity: 1,
+          popularity: -1,
+          hq: { dinosaurs: -8, mediaset: 2, alt: 0.8 },
+        },
+        feedback:
+          "You do not appear in a single frame of the story, which is a skill. His people will remember the silence for the rest of their careers, and the moderate electorate he leaves behind is now unowned.",
+      },
+      {
+        label: "Hammer him harder than anyone",
+        detail: "Turn the empire on the whole system, your friends included.",
+        effect: {
+          integrity: 5,
+          popularity: 5,
+          order: -3,
+          hq: { alt: 4, dinosaurs: -22, mediaset: -6, axis: 8 },
+          relations: { ppi: -12, pds: -4 },
+        },
+        feedback:
+          "It is astonishing television and it is read as parricide. The anti-system vote begins to gather around a man who has not yet founded a party, and every survivor of the old republic understands that you will not protect anybody.",
+      },
+    ],
+  },
+  {
     id: "craxi-avviso",
     date: "December 1992",
     headline: "An avviso di garanzia for Bettino Craxi",
     body: "The Socialist leader is formally under investigation. The whole system of party financing is now on trial in public.",
+    not: ["fi"],
     choices: [
       {
         label: "Demand he resign everything",
@@ -493,10 +558,52 @@ export const EVENTS: GameEvent[] = [
     ],
   },
   {
+    id: "fi-decree",
+    date: "February 1993",
+    headline: "The colpo di spugna arrives on the President's desk",
+    body: "A decree decriminalising illicit party financing would save several hundred careers, some of them very close to you. Scalfaro refuses to sign. Your three networks have to decide what the country sees tonight.",
+    only: ["fi"],
+    choices: [
+      {
+        label: "Have your bulletins argue for the decree",
+        detail: "A political solution to a political sin.",
+        effect: {
+          integrity: -6,
+          order: 3,
+          popularity: -3,
+          hq: { dinosaurs: 14, mediaset: 8 },
+          relations: { ppi: 8, pds: -6 },
+        },
+        feedback:
+          "The men it would have saved understand perfectly who spoke for them, and they are grateful in the way that matters — licences, contracts, advertising. Outside that circle, you are now filed with the old regime.",
+      },
+      {
+        label: "Lead the outrage",
+        detail: "Open the evening news with the President's refusal.",
+        effect: {
+          integrity: 5,
+          popularity: 4,
+          hq: { alt: 2.8, dinosaurs: -12 },
+          relations: { ppi: -8 },
+        },
+        feedback:
+          "Twenty million people are told, by your own anchormen, that the political class tried to absolve itself. The internal figures for an alternative list jump, and four telephone numbers in Rome stop answering.",
+      },
+      {
+        label: "Keep the coverage flat and technical",
+        detail: "Both sides, no adjectives, move on to the football.",
+        effect: { integrity: -1, popularity: -1, order: 1, hq: { mediaset: 3, alt: 0.3 } },
+        feedback:
+          "A week of perfectly balanced bulletins that nobody remembers. The group offends no one and gains nothing, and the advertising department is content.",
+      },
+    ],
+  },
+  {
     id: "ppi-scalfaro",
     date: "February 1993",
     headline: "The decree that would have ended Mani Pulite",
     body: "A government decree decriminalising illicit party financing lands on the President's desk. Scalfaro refuses to sign.",
+    not: ["fi"],
     choices: [
       {
         label: "Applaud the President",
@@ -551,10 +658,53 @@ export const EVENTS: GameEvent[] = [
     ],
   },
   {
+    id: "fi-ciampi",
+    date: "April 1993",
+    headline: "A banker at Palazzo Chigi, and not a seat for you",
+    body: "Ciampi forms a government of technicians. You hold no seat in either chamber and cannot be offered anything — but every newsroom you own has a line to take, and the group has an enormous amount of debt to refinance.",
+    only: ["fi"],
+    choices: [
+      {
+        label: "Place your men as advisers",
+        detail: "Consultants, committees, a friendly word at the Treasury.",
+        effect: {
+          economy: 2,
+          treasury: 3,
+          integrity: -3,
+          hq: { mediaset: 9, dinosaurs: 8 },
+          relations: { ppi: 6, pds: 3 },
+        },
+        feedback:
+          "Two of your economists end up in ministerial working groups and the banks become noticeably more relaxed about the group's exposure. The men who arranged it will want something back in a year.",
+      },
+      {
+        label: "Give the government a fair wind",
+        detail: "Correct, respectful coverage. No favours asked.",
+        effect: { order: 3, economy: 2, integrity: 2, hq: { axis: -8, mediaset: 3 } },
+        feedback:
+          "The Bank of Italy quietly appreciates it, and so do the liberals you are courting in Milan. Nobody in the country notices, which is the price of behaving well.",
+      },
+      {
+        label: "Let the networks say the technocrats are illegitimate",
+        detail: "Nobody voted for these people. Elections now.",
+        effect: {
+          popularity: 3,
+          order: -3,
+          economy: -2,
+          hq: { alt: 2.4, axis: 10, dinosaurs: -4 },
+          relations: { lega: 5, ppi: -6, pds: -4 },
+        },
+        feedback:
+          "Three networks discover the same indignation on the same evening and the phrase 'nobody voted for them' enters the language. The secret figures move up for the first time in months.",
+      },
+    ],
+  },
+  {
     id: "ciampi",
     date: "April 1993",
     headline: "A banker at Palazzo Chigi",
     body: "Ciampi forms the first non-parliamentary government of the Republic. Three ministers resign within a day over the immunity vote on Craxi.",
+    not: ["fi"],
     choices: [
       {
         label: "Enter the government",
@@ -580,10 +730,57 @@ export const EVENTS: GameEvent[] = [
     ],
   },
   {
+    id: "fi-clubs",
+    date: "June 1993",
+    headline: "The clubs multiply faster than anyone planned",
+    body: "There is no party, no symbol and no candidate, and yet four thousand Forza Italia clubs have opened above bars and in dealership showrooms. Somebody has to decide who runs them.",
+    only: ["fi"],
+    choices: [
+      {
+        label: "Publitalia's salesmen take them over",
+        detail: "Advertising area managers become political organisers.",
+        effect: {
+          order: 4,
+          treasury: 3,
+          integrity: -2,
+          hq: { mediaset: 6, alt: 2.2 },
+        },
+        feedback:
+          "Men who can sell thirty seconds of prime time to a furniture shop turn out to be able to sell a movement. The network is disciplined, professional and traceable to a single company, which someone will eventually notice.",
+      },
+      {
+        label: "Let the old notables adopt them",
+        detail: "Ex-Socialist and ex-DC clienteles, delivered whole.",
+        effect: {
+          order: 3,
+          treasury: 4,
+          integrity: -5,
+          hq: { dinosaurs: 14, mediaset: 5, alt: 0.6 },
+          relations: { ppi: 8 },
+        },
+        feedback:
+          "Whole southern electorates arrive already organised, along with the men who organised them for thirty years. Your managers ask what happened to the idea of a new political class.",
+      },
+      {
+        label: "Keep them amateur and angry",
+        detail: "Shopkeepers, dentists, nobody with a party card.",
+        effect: {
+          popularity: 3,
+          integrity: 4,
+          order: -3,
+          hq: { alt: 2.6, axis: 6, dinosaurs: -6 },
+        },
+        feedback:
+          "The meetings are chaotic, sincere and unmistakably new — exactly the thing no other party can imitate this year. Some clubs pass motions you would never have signed.",
+      },
+    ],
+  },
+  {
     id: "local-1993",
     date: "June 1993",
     headline: "Local elections: the first test of the new law",
     body: "Mayors are now elected directly. Milan, Turin, Catania and hundreds of towns vote, and the old parties are being wiped out.",
+    not: ["fi"],
     choices: [
       {
         label: "Run candidates everywhere",
@@ -700,29 +897,46 @@ export const EVENTS: GameEvent[] = [
     id: "fi-conflict",
     date: "October 1993",
     headline: "Three networks, one owner",
-    body: "Your critics say a man who owns half of Italian television cannot be a candidate. Your lawyers say there is no law that says so.",
+    body: "Your critics say a man who owns half of Italian television cannot be a candidate. Your lawyers say there is no law that says so. Fini reaches the run-off in Rome and asks, on camera, whether you would vote for him.",
     only: ["fi"],
     choices: [
       {
-        label: "Promise a blind trust",
-        detail: "Hand the companies to managers if you win.",
-        effect: { integrity: 5, popularity: 2, treasury: -3 },
+        label: "Promise a blind trust, and endorse Fini",
+        detail: "Managers for the companies, a vote for the right in Rome.",
+        effect: {
+          integrity: 4,
+          popularity: 3,
+          treasury: -3,
+          hq: { mediaset: -4, axis: 8, alt: 1.4 },
+          relations: { an: 12, lega: -6 },
+        },
         feedback:
-          "The promise is welcomed and immediately doubted. Journalists start asking who exactly the trustees would be.",
+          "Two headlines for the price of one: the promise is welcomed and immediately doubted, and the post-fascists are legitimised by a man with an audience of twenty million. Bossi calls it a betrayal within the hour.",
       },
       {
         label: "Refuse to discuss it",
         detail: "Success is not a crime.",
-        effect: { popularity: 2, integrity: -4, relations: { pds: -8, prc: -6 } },
+        effect: {
+          popularity: 2,
+          integrity: -4,
+          hq: { mediaset: 6, axis: 6, alt: 0.8 },
+          relations: { pds: -8, prc: -6 },
+        },
         feedback:
-          "Your supporters love the line. The conflict of interest becomes the left's entire campaign.",
+          "Your supporters love the line and the group keeps every lira of its advertising revenue. The conflict of interest becomes the left's entire campaign, and it will still be their campaign in five years.",
       },
       {
-        label: "Put a journalist in charge of the news",
-        detail: "A visible guarantee of independence.",
-        effect: { integrity: 3, popularity: 1, order: 2, treasury: -2 },
+        label: "Put a respected journalist over the news",
+        detail: "A visible guarantee, and no word about Rome.",
+        effect: {
+          integrity: 3,
+          popularity: 1,
+          order: 2,
+          hq: { axis: -10, mediaset: -3, dinosaurs: -3 },
+          relations: { ppi: 5, an: -4 },
+        },
         feedback:
-          "The appointment gets respectful coverage. Inside the networks, everyone knows who still signs the cheques.",
+          "The appointment gets respectful coverage from people who never give you any. Inside the networks everyone knows who still signs the cheques, and in Rome Fini notes the silence.",
       },
     ],
   },
@@ -817,6 +1031,53 @@ export const EVENTS: GameEvent[] = [
     ],
   },
   {
+    id: "fi-programme",
+    date: "November 1993",
+    headline: "Two rooms at Milano 2 write the same programme",
+    body: "In one room the liberal professors — flat taxes, privatisation, free trade — in the other the men who know that a million jobs and a tax amnesty win squares. Both drafts are on your desk and only one can go to print.",
+    only: ["fi"],
+    choices: [
+      {
+        label: "The liberal draft",
+        detail: "Martino's numbers, Urbani's language, the Economist as a witness.",
+        effect: {
+          economy: 4,
+          integrity: 3,
+          popularity: -2,
+          hq: { axis: -22, mediaset: 7 },
+          relations: { ppi: 8, lega: 3, an: -5 },
+        },
+        feedback:
+          "The business associations and the foreign press treat you as a serious proposition, and the donors are generous. In the focus groups the tables are described, more than once, as boring.",
+      },
+      {
+        label: "The populist draft",
+        detail: "A million jobs, pensions untouched, the state off your back.",
+        effect: {
+          popularity: 5,
+          integrity: -4,
+          economy: -1,
+          hq: { axis: 22, mediaset: -5, alt: 1.2 },
+          relations: { an: 8, lega: 4, ppi: -5 },
+        },
+        feedback:
+          "Southern audiences light up and Fini's people start describing you as a natural ally. A liberal donor in Turin cancels a subscription in writing, and the group's finance director notices the gap.",
+      },
+      {
+        label: "Print both and let the audience choose",
+        detail: "Liberal on the economy, hard on order and the nation.",
+        effect: {
+          popularity: 2,
+          integrity: -2,
+          order: 2,
+          hq: { axis: 4, alt: 0.6 },
+        },
+        feedback:
+          "The manifesto contradicts itself on page eleven and nobody in the country reads page eleven. Both rooms feel half-defeated and keep working, which is more than most parties manage.",
+      },
+    ],
+  },
+  {
     id: "privatisation",
     date: "November 1993",
     headline: "Selling the state",
@@ -879,10 +1140,56 @@ export const EVENTS: GameEvent[] = [
     ],
   },
   {
+    id: "fi-tv-law",
+    date: "December 1993",
+    headline: "A law written with your name in mind",
+    body: "The ownership cap on the table would force you to sell a network. The left says it is antitrust; your lawyers say it is a bill against one man. Nothing in the campaign matters more than whether it passes.",
+    only: ["fi"],
+    choices: [
+      {
+        label: "Turn the networks on the bill",
+        detail: "Petitions in the ad breaks, viewers phoning their deputies.",
+        effect: {
+          popularity: 3,
+          integrity: -4,
+          hq: { mediaset: 9, alt: 1.6, axis: 6 },
+          relations: { pds: -10, prc: -8 },
+        },
+        feedback:
+          "Eight hundred thousand signatures in a fortnight, gathered between quiz shows. Constitutionalists call it the clearest demonstration yet of exactly what the bill was for, and the bill dies anyway.",
+      },
+      {
+        label: "Call in the old friends to bury it",
+        detail: "Committee, sub-committee, an expired reading of the calendar.",
+        effect: {
+          integrity: -3,
+          order: 2,
+          hq: { mediaset: 12, dinosaurs: 10, alt: -0.4 },
+          relations: { ppi: 5, pds: -5 },
+        },
+        feedback:
+          "Three telephone calls to men who have survived everything, and the text never reaches the floor. Nothing appears in the papers, which is the point; inside the headquarters, everyone notes how much of your freshness that cost.",
+      },
+      {
+        label: "Accept a cap and promise a trust",
+        detail: "One network into an independent holding after the vote.",
+        effect: {
+          integrity: 6,
+          popularity: 1,
+          hq: { mediaset: -10, axis: -12, dinosaurs: -4 },
+          relations: { ppi: 6, pds: 4 },
+        },
+        feedback:
+          "Editorials that have flayed you for a year concede that this is a real concession. The group's advertising forecast for 1994 is rewritten downwards twice, and Publitalia's managers ask, politely, whether you have lost your mind.",
+      },
+    ],
+  },
+  {
     id: "tv",
     date: "December 1993",
     headline: "Who controls television?",
     body: "A law on media ownership is on the table. Three private networks, one owner, and an electorate that watches five hours a day.",
+    not: ["fi"],
     choices: [
       {
         label: "Break up media concentration",
@@ -911,32 +1218,44 @@ export const EVENTS: GameEvent[] = [
     id: "fi-launch",
     date: "January 1994",
     headline: "The announcement",
-    body: "Nine minutes of videotape are delivered to every newsroom in Italy. The tone of it will define the campaign.",
     only: ["fi"],
+    body: "Nine minutes of videotape are delivered to every newsroom in Italy. Everything the headquarters has accumulated in silence — the empire, the favours, the clubs, the secret figures — is spent tonight, and the tone of it will define the campaign.",
     choices: [
       {
         label: "'Italy is the country I love'",
-        detail: "Warm, personal, above the parties.",
-        effect: { popularity: 6, integrity: -1, order: 1 },
+        detail: "Warm, personal, above the parties. A study, a bookcase, a smile.",
+        effect: { popularity: 6, integrity: -1, order: 1, hq: { alt: 2.5 } },
         flag: "fi:entry",
         feedback:
-          "It is parodied within hours and imitated within weeks. Twelve million people watch it and most of them remember it.",
+          "It is parodied within hours and imitated within weeks. Twelve million people watch it, most of them remember it, and the secret support the headquarters has been counting for eighteen months finally appears in a published poll with your name on it.",
       },
       {
         label: "A hard anti-communist message",
         detail: "Name the enemy in the first sentence.",
-        effect: { popularity: 4, order: 2, integrity: -3, relations: { pds: -12, prc: -10, an: 6 } },
+        effect: {
+          popularity: 4,
+          order: 2,
+          integrity: -3,
+          hq: { axis: 16, alt: 1.5 },
+          relations: { pds: -12, prc: -10, an: 8 },
+        },
         flag: "fi:entry",
         feedback:
-          "It mobilises the frightened middle and hands the left an easy caricature of you.",
+          "It mobilises the frightened middle and hands the left an easy caricature of you. Fini's people are delighted; the liberal economists you recruited in Milan spend the evening explaining that this is not what they signed up for.",
       },
       {
-        label: "A technical programme speech",
-        detail: "Numbers, tables, a plan for jobs.",
-        effect: { economy: 3, integrity: 3, popularity: -2 },
+        label: "A liberal programme speech",
+        detail: "Taxes, privatisation, tables, a plan for jobs.",
+        effect: {
+          economy: 3,
+          integrity: 3,
+          popularity: -2,
+          hq: { axis: -14, mediaset: 5, alt: 0.4 },
+          relations: { ppi: 5 },
+        },
         flag: "fi:entry",
         feedback:
-          "Economists rate it seriously. Audience research shows viewers switched over after four minutes.",
+          "Economists and the business federations rate it seriously, and the donors renew their subscriptions the same week. Audience research shows viewers switched over after four minutes.",
       },
     ],
   },
@@ -1062,10 +1381,59 @@ export const EVENTS: GameEvent[] = [
     ],
   },
   {
+    id: "fi-mani-pulite",
+    date: "March 1994",
+    headline: "The pool sends for Publitalia",
+    body: "Di Pietro's men have the advertising arm's black accounts and a chain of payments that leads to a company in the Channel Islands. Your brother is questioned for six hours. Every newsroom in Italy has the story except three.",
+    only: ["fi"],
+    choices: [
+      {
+        label: "Attack the magistrates on air",
+        detail: "A red-robed party of judges against the will of the voters.",
+        effect: {
+          popularity: 4,
+          integrity: -5,
+          order: -2,
+          hq: { axis: 14, dinosaurs: 4, alt: 1.2 },
+          relations: { an: 6, pds: -8, prc: -8 },
+        },
+        feedback:
+          "The three networks run the same indignant editorial at the same hour and your own voters believe it completely. The pool answers with a fresh leak on Sunday, and half the country now reads every acquittal as a verdict on you.",
+      },
+      {
+        label: "Hand over the ledgers and pay what is owed",
+        detail: "Full cooperation, an outside auditor, no lawyers on television.",
+        effect: {
+          integrity: 7,
+          popularity: -2,
+          treasury: -4,
+          hq: { axis: -10, mediaset: -7, dinosaurs: -5 },
+          relations: { ppi: 5, pds: 3 },
+        },
+        feedback:
+          "Milan is disarmed and the story loses its villain within a week. The settlement costs the group a great deal of money, and several old friends conclude that you are a man who talks to prosecutors.",
+      },
+      {
+        label: "Have friendly deputies bury the file",
+        detail: "A quiet amendment, a committee, a jurisdiction moved.",
+        effect: {
+          integrity: -8,
+          order: 3,
+          popularity: -1,
+          hq: { mediaset: 10, dinosaurs: 12, alt: -0.8 },
+          relations: { ppi: 6, pds: -6 },
+        },
+        feedback:
+          "The survivors of the old republic still know which corridor to walk down, and the file slows to a crawl. They also send you the bill, and the fresh face in the videotape suddenly looks like everybody else's.",
+      },
+    ],
+  },
+  {
     id: "scandal",
     date: "March 1994",
     headline: "A financier in your circle is arrested",
     body: "He funded your campaign and has a lot to say to prosecutors. Journalists are outside your house by dawn.",
+    not: ["fi"],
     choices: [
       {
         label: "Expel him and publish the accounts",
