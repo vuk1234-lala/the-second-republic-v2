@@ -1,3 +1,5 @@
+import type { HqDelta } from "./hq";
+
 export type PartyId =
   | "fi"
   | "pds"
