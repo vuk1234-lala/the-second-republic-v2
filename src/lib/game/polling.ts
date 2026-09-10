@@ -93,9 +93,11 @@ function baseline(id: PollId, ctx: Ctx): number {
   const since = Math.max(0, m - MOMENTS.start);
   switch (id) {
     case "fi": {
-      const entered = ctx.player === "fi" ? m >= MOMENTS.fiEntry : m >= MOMENTS.fiEntry;
+      const entered =
+        ctx.player === "fi" ? ctx.flags.includes("fi:entry") || m >= MOMENTS.fiEntry : m >= MOMENTS.fiEntry;
       if (!entered) return 0;
-      return 20 + (ctx.player === "fi" ? ctx.push * 0.5 : 0);
+      if (ctx.player === "fi") return ctx.entry ?? 20;
+      return 20;
     }
     case "ppi": {
       const target = dcTarget(ctx);
