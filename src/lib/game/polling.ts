@@ -171,12 +171,14 @@ export function pollsFor(state: GameState, currentMonth: number): Poll[] {
   const push = standing(state);
   const months = pollMonths(currentMonth);
   const span = Math.max(1, currentMonth - MOMENTS.start);
+  const entry = state.party === "fi" ? entryShare(state.hq) : undefined;
   const polls = months.map((month, i) =>
     computePoll(
       {
         player: state.party,
         flags: state.flags,
         month,
+        entry,
         push: push * Math.min(1, (month - MOMENTS.start) / span),
       },
       i,
