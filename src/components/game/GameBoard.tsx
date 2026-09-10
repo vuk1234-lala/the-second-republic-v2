@@ -95,6 +95,10 @@ export function GameBoard({
         <div className="mt-6 max-w-2xl">
           <PollsTab state={state} />
         </div>
+      ) : tab === "hq" ? (
+        <div className="mt-6 max-w-2xl">
+          <HeadquartersTab state={state} />
+        </div>
       ) : (
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_260px]">
         <article className="card-paper p-5 sm:p-7">
