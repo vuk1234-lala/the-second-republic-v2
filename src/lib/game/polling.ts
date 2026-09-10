@@ -1,5 +1,6 @@
 import { PARTIES, PARTY_MAP, type PartyId } from "./data";
 import type { GameState } from "./engine";
+import { entryShare } from "./hq";
 import { identityOf, MOMENTS, monthLabelFor, type Identity } from "./identity";
 
 export type PollId = PartyId | "psi" | "minor";
@@ -79,6 +80,8 @@ interface Ctx {
   month: number;
   /** the player's standing at that month */
   push: number;
+  /** Forza Italia's entry share, worked out at headquarters */
+  entry?: number;
 }
 
 function dcTarget(ctx: Ctx): number {
@@ -91,9 +94,11 @@ function baseline(id: PollId, ctx: Ctx): number {
   const since = Math.max(0, m - MOMENTS.start);
   switch (id) {
     case "fi": {
-      const entered = ctx.player === "fi" ? m >= MOMENTS.fiEntry : m >= MOMENTS.fiEntry;
+      const entered =
+        ctx.player === "fi" ? ctx.flags.includes("fi:entry") || m >= MOMENTS.fiEntry : m >= MOMENTS.fiEntry;
       if (!entered) return 0;
-      return 20 + (ctx.player === "fi" ? ctx.push * 0.5 : 0);
+      if (ctx.player === "fi") return ctx.entry ?? 20;
+      return 20;
     }
     case "ppi": {
       const target = dcTarget(ctx);
@@ -103,6 +108,10 @@ function baseline(id: PollId, ctx: Ctx): number {
       const glide = 13.6 * Math.exp(-since / 12);
       if (m < MOMENTS.craxi) return glide;
       const atFall = 13.6 * Math.exp(-(MOMENTS.craxi - MOMENTS.start) / 12);
+      // Craxi shielded from the worst of the outcry: the party survives, diminished
+      if (ctx.flags.includes("psi:saved")) {
+        return Math.max(6, 6 + (atFall - 6) * Math.exp(-(m - MOMENTS.craxi) / 6));
+      }
       return Math.max(0.4, 0.4 + (atFall - 0.4) * Math.exp(-(m - MOMENTS.craxi) / 1.5));
     }
     case "pds":
@@ -163,12 +172,14 @@ export function pollsFor(state: GameState, currentMonth: number): Poll[] {
   const push = standing(state);
   const months = pollMonths(currentMonth);
   const span = Math.max(1, currentMonth - MOMENTS.start);
+  const entry = state.party === "fi" ? entryShare(state.hq) : undefined;
   const polls = months.map((month, i) =>
     computePoll(
       {
         player: state.party,
         flags: state.flags,
         month,
+        ...(entry === undefined ? {} : { entry }),
         push: push * Math.min(1, (month - MOMENTS.start) / span),
       },
       i,
