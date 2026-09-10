@@ -79,6 +79,8 @@ interface Ctx {
   month: number;
   /** the player's standing at that month */
   push: number;
+  /** Forza Italia's entry share, worked out at headquarters */
+  entry?: number;
 }
 
 function dcTarget(ctx: Ctx): number {
