@@ -179,7 +179,7 @@ export function pollsFor(state: GameState, currentMonth: number): Poll[] {
         player: state.party,
         flags: state.flags,
         month,
-        entry,
+        ...(entry === undefined ? {} : { entry }),
         push: push * Math.min(1, (month - MOMENTS.start) / span),
       },
       i,
