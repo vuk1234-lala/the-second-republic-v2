@@ -107,6 +107,10 @@ function baseline(id: PollId, ctx: Ctx): number {
       const glide = 13.6 * Math.exp(-since / 12);
       if (m < MOMENTS.craxi) return glide;
       const atFall = 13.6 * Math.exp(-(MOMENTS.craxi - MOMENTS.start) / 12);
+      // Craxi shielded from the worst of the outcry: the party survives, diminished
+      if (ctx.flags.includes("psi:saved")) {
+        return Math.max(6, 6 + (atFall - 6) * Math.exp(-(m - MOMENTS.craxi) / 6));
+      }
       return Math.max(0.4, 0.4 + (atFall - 0.4) * Math.exp(-(m - MOMENTS.craxi) / 1.5));
     }
     case "pds":
