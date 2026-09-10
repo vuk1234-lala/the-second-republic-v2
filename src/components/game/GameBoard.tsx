@@ -40,7 +40,7 @@ export function GameBoard({
   onChoose: (choice: Choice) => void;
 }) {
   const [pending, setPending] = useState<Choice | null>(null);
-  const [tab, setTab] = useState<"desk" | "polls">("desk");
+  const [tab, setTab] = useState<"desk" | "polls" | "hq">("desk");
   const month = campaignMonth(state);
   const ctx = { player: state.party, flags: state.flags, month };
   const party = identityOf(state.party, ctx);
@@ -72,7 +72,13 @@ export function GameBoard({
       </header>
 
       <div className="mt-4 flex gap-2">
-        {([["desk", "The campaign"], ["polls", "Polls"]] as const).map(([key, label]) => (
+        {(
+          [
+            ["desk", "The campaign"],
+            ["polls", "Polls"],
+            ...(state.party === "fi" ? ([["hq", "Headquarters"]] as const) : []),
+          ] as const
+        ).map(([key, label]) => (
           <button
             key={key}
             onClick={() => setTab(key)}
