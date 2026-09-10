@@ -1,5 +1,6 @@
 import { PARTIES, PARTY_MAP, type PartyId } from "./data";
 import type { GameState } from "./engine";
+import { entryShare } from "./hq";
 import { identityOf, MOMENTS, monthLabelFor, type Identity } from "./identity";
 
 export type PollId = PartyId | "psi" | "minor";

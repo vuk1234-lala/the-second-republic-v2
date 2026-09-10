@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { HeadquartersTab } from "@/components/game/HeadquartersTab";
 import { NewsFeed } from "@/components/game/NewsFeed";
 import { PollsTab } from "@/components/game/PollsTab";
 import { PARTIES, type Choice } from "@/lib/game/data";
