@@ -4,6 +4,7 @@ import {
   campaignMultiplier,
   dinosaurLabel,
   freshnessMultiplier,
+  hqProfile,
   internalPoll,
   mediasetLabel,
   mediasetMultiplier,
@@ -34,61 +35,49 @@ function pct(mult: number) {
 
 export function HeadquartersTab({ state }: { state: GameState }) {
   const hq: HqState = state.hq;
-  const poll = internalPoll(hq, state.turn);
+  const profile = hqProfile(state.party, state.flags);
+  const poll = internalPoll(hq, state.turn, profile.internal.houses);
   const axisPos = (hq.axis + 100) / 2;
 
   return (
     <div className="space-y-6">
       <section className="card-paper p-5">
-        <h3 className="rule-top label-caps pt-2 text-muted-foreground">Milano 2 · Headquarters</h3>
-        <p className="mt-3 text-sm leading-relaxed text-foreground/80">
-          Nothing here is published. It is the state of the machine that will fight the campaign
-          once — and if — you decide to enter the field.
-        </p>
+        <h3 className="rule-top label-caps pt-2 text-muted-foreground">{profile.title}</h3>
+        <p className="mt-3 text-sm leading-relaxed text-foreground/80">{profile.blurb}</p>
 
         <div className="mt-5 space-y-5">
           <div>
             <Bar
               value={hq.mediaset}
-              label="Mediaset wealth"
-              note={`${mediasetLabel(hq.mediaset)} · ${pct(mediasetMultiplier(hq))}`}
+              label={profile.media.label}
+              note={`${mediasetLabel(hq.mediaset, profile.media.labels)} · ${pct(mediasetMultiplier(hq))}`}
             />
-            <p className="mt-1 text-sm text-muted-foreground">
-              The reach and the cash of the empire. It multiplies everything a campaign choice can
-              win you, from x1.00 to x3.00.
-            </p>
+            <p className="mt-1 text-sm text-muted-foreground">{profile.media.note}</p>
           </div>
 
           <div>
             <Bar
               value={hq.dinosaurs}
-              label="Relations with the dinosaurs"
-              note={`${dinosaurLabel(hq.dinosaurs)} · freshness ${pct(freshnessMultiplier(hq))}`}
+              label={profile.dino.label}
+              note={`${dinosaurLabel(hq.dinosaurs, profile.dino.labels)} · freshness ${pct(freshnessMultiplier(hq))}`}
             />
-            <p className="mt-1 text-sm text-muted-foreground">
-              The notables of the old republic open doors and licences — but past “Warm” the fresh
-              face starts to look like an old one.
-            </p>
+            <p className="mt-1 text-sm text-muted-foreground">{profile.dino.note}</p>
           </div>
 
           <div>
             <Bar
               value={axisPos}
-              label="Liberalism ↔ Conservatism"
-              note={`${axisLabel(hq.axis)} · ${pct(axisMultiplier(hq))}`}
+              label={profile.axis.label}
+              note={`${axisLabel(hq.axis, profile.axis.labels)} · ${pct(axisMultiplier(hq))}`}
             />
-            <p className="mt-1 text-sm text-muted-foreground">
-              Liberalism warms the moderates and the old guard and keeps the donors writing cheques,
-              but costs up to 30% of your campaigning bite. Conservatism eats into the MSI and the
-              Lega and adds 10% of populist lift, and frightens the money away.
-            </p>
+            <p className="mt-1 text-sm text-muted-foreground">{profile.axis.note}</p>
           </div>
         </div>
       </section>
 
       <section className="card-paper p-5">
         <h3 className="rule-top label-caps pt-2 text-muted-foreground">
-          Support for “an alternative”
+          {profile.internal.title}
         </h3>
         <p className="font-display mt-3 text-5xl leading-none tabular-nums">
           {poll.value.toFixed(1)}%
@@ -96,13 +85,14 @@ export function HeadquartersTab({ state }: { state: GameState }) {
         <p className="label-caps mt-2 text-muted-foreground">
           {poll.house} · ±{poll.margin.toFixed(1)} points
         </p>
+        <p className="mt-1 text-sm text-muted-foreground">{profile.internal.note}</p>
         <p className="mt-3 text-sm leading-relaxed text-foreground/80">
           {poll.tight
             ? "A proper sample, properly weighted. This one you can believe."
             : "Six hundred telephone calls in two evenings. Treat the figure as a mood, not a number."}
         </p>
         <p className="mt-3 border-l-2 border-border pl-4 text-sm text-muted-foreground">
-          Campaign multiplier if you go tomorrow: {pct(campaignMultiplier(hq))}.
+          Campaign multiplier as things stand: {pct(campaignMultiplier(hq))}.
         </p>
       </section>
     </div>

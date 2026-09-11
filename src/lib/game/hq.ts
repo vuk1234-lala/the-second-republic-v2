@@ -117,7 +117,7 @@ function dcProfile(kind: "dc" | "ppi" | "segni"): HqProfile {
   const dino = {
     dc: {
       label: "Relations with the notables",
-      note: "Andreotti, Forlani, the men with the preference votes. They deliver the南 south and the machine — and every warrant served on them is served on you.",
+      note: "Andreotti, Forlani, the men with the preference votes. They deliver the south and the machine — and every warrant served on them is served on you.",
     },
     ppi: {
       label: "Relations with the old current bosses",
@@ -302,7 +302,7 @@ export function dinosaurLabel(v: number, labels: string[] = DINO_FI): string {
 }
 
 export function axisLabel(v: number, labels: string[] = AXIS_FI): string {
-  return band(v + 100, labels.length === 7 ? labels : AXIS_FI);
+  return band(((v + 100) / 200) * 100, labels.length === 7 ? labels : AXIS_FI);
 }
 
 /** Cheap deterministic noise in [-1, 1]. */
