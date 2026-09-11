@@ -1,5 +1,5 @@
 import { EVENTS, PARTIES, PARTY_MAP, type Effect, type PartyId } from "./data";
-import { axisRelationDrift, campaignMultiplier, createHq, stepHq, type HqState } from "./hq";
+import { axisRelationDrift, campaignMultiplier, createHq, hasHq, stepHq, type HqState } from "./hq";
 import { monthIndex, MOMENTS } from "./identity";
 
 
@@ -28,7 +28,7 @@ export function createGame(party: PartyId): GameState {
   for (const other of PARTIES) {
     relations[other.id] = other.id === party ? 100 : (p.relations[other.id] ?? 0);
   }
-  return { party, turn: 0, ...p.start, relations, log: [], flags: [], hq: createHq() };
+  return { party, turn: 0, ...p.start, relations, log: [], flags: [], hq: createHq(party) };
 }
 
 export function applyEffect(
@@ -37,7 +37,7 @@ export function applyEffect(
   note: string,
   flag?: string,
 ): GameState {
-  const isFi = state.party === "fi";
+  const isFi = hasHq(state.party);
   const rawPop = effect.popularity ?? 0;
   const gain = isFi && rawPop > 0 ? rawPop * campaignMultiplier(state.hq) : rawPop;
   const hq = isFi ? stepHq(state.hq, effect.hq, gain) : state.hq;

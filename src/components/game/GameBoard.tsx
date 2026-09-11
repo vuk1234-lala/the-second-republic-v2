@@ -5,6 +5,7 @@ import { NewsFeed } from "@/components/game/NewsFeed";
 import { PollsTab } from "@/components/game/PollsTab";
 import { PARTIES, type Choice } from "@/lib/game/data";
 import { METRICS, campaignMonth, eventsFor, type GameState } from "@/lib/game/engine";
+import { hasHq } from "@/lib/game/hq";
 import { identityOf } from "@/lib/game/identity";
 
 function Meter({ label, value }: { label: string; value: number }) {
@@ -76,7 +77,7 @@ export function GameBoard({
           [
             ["desk", "The campaign"],
             ["polls", "Polls"],
-            ...(state.party === "fi" ? ([["hq", "Headquarters"]] as const) : []),
+            ...(hasHq(state.party) ? ([["hq", "Headquarters"]] as const) : []),
           ] as const
         ).map(([key, label]) => (
           <button
