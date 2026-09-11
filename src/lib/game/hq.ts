@@ -117,7 +117,7 @@ function dcProfile(kind: "dc" | "ppi" | "segni"): HqProfile {
   const dino = {
     dc: {
       label: "Relations with the notables",
-      note: "Andreotti, Forlani, the men with the preference votes. They deliver the南 south and the machine — and every warrant served on them is served on you.",
+      note: "Andreotti, Forlani, the men with the preference votes. They deliver the south and the machine — and every warrant served on them is served on you.",
     },
     ppi: {
       label: "Relations with the old current bosses",
