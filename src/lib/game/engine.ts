@@ -1,6 +1,7 @@
 import { EVENTS, PARTIES, PARTY_MAP, type Effect, type PartyId } from "./data";
 import { axisRelationDrift, campaignMultiplier, createHq, hasHq, stepHq, type HqState } from "./hq";
-import { monthIndex, MOMENTS } from "./identity";
+import { finalIdentity, monthIndex, MOMENTS } from "./identity";
+import { affinity, blocOfParty, MINOR_MAP, minorsAt } from "./minors";
 
 
 export interface GameState {
