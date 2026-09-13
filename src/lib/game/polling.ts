@@ -127,19 +127,23 @@ function baseline(id: PollId, ctx: Ctx): number {
       );
     
     }
-    case "minor":
-      // the old minor lists slowly shed votes to the new formations
-      return Math.max(13.5, 20.9 - Math.min(since, 21) * 0.32);
     default:
       return 0;
   }
 }
 
 function computePoll(ctx: Ctx, index: number): Poll {
-  const rows = RESULT_1992.map((p) => {
-    const value = Math.max(0, baseline(p.id, ctx));
-    const jitter = value === 0 ? 0 : noise(`${p.id}-${ctx.month}-${index}`) * SAMPLING;
-    return { id: p.id as PollId, value: Math.max(value === 0 ? 0 : 0.3, value + jitter) };
+  const majors = RESULT_1992.map((p) => ({
+    id: p.id as PollId,
+    raw: Math.max(0, baseline(p.id, ctx)),
+  }));
+  const minors = minorsInCampaign().map((m) => ({
+    id: m.id as PollId,
+    raw: campaignShare(m, ctx.month),
+  }));
+  const rows = [...majors, ...minors].map((r) => {
+    const jitter = r.raw === 0 ? 0 : noise(`${r.id}-${ctx.month}-${index}`) * SAMPLING;
+    return { id: r.id, value: r.raw === 0 ? 0 : Math.max(0.2, r.raw + jitter) };
   });
   const total = rows.reduce((a, b) => a + b.value, 0);
 
