@@ -219,7 +219,7 @@ export interface DiagramRow {
 }
 
 export function rows1992(): DiagramRow[] {
-  return RESULT_1992.filter((p) => p.r1992 > 0).map((p) => ({
+  const majors: DiagramRow[] = RESULT_1992.filter((p) => p.r1992 > 0).map((p) => ({
     id: p.id,
     order: p.order,
     name: p.name,
@@ -228,6 +228,16 @@ export function rows1992(): DiagramRow[] {
     share: p.r1992,
     seats: p.seats1992,
   }));
+  const minors: DiagramRow[] = minorsAt(1992).map((m) => ({
+    id: m.id,
+    order: m.order,
+    name: m.name,
+    short: m.short,
+    color: m.color,
+    share: m.share,
+    seats: Math.max(1, Math.round((m.share / 100) * 630)),
+  }));
+  return [...majors, ...minors];
 }
 
 /** Turn any set of shares into a 630-seat chamber. */
@@ -236,13 +246,23 @@ export function seatsFromShares(rows: { share: number }[]): number[] {
   return rows.map((r) => Math.round((r.share / total) * 630));
 }
 
-/** Display metadata for a party as it stands at a given moment. */
-export function metaFor(id: PollId, ctx: { player: PartyId; flags: string[]; month: number }): Identity & { order: number } {
+/** Display metadata for a party or a small list as it stands at a given moment. */
+export function metaFor(
+  id: PollId,
+  ctx: { player: PartyId; flags: string[]; month: number },
+): Identity & { order: number } {
+  const minor = MINOR_MAP[id];
+  if (minor && id !== "psi") {
+    return { name: minor.name, short: minor.short, color: minor.color, order: minor.order };
+  }
   const meta = POLL_META[id];
-  if (id === "psi" || id === "minor") {
+  if (!meta) {
+    return { name: "Other lists", short: "Other", color: "var(--party-minor)", order: 4.2 };
+  }
+  if (id === "psi") {
     return { name: meta.name, short: meta.short, color: meta.color, order: meta.order };
   }
-  const ident = identityOf(id, ctx);
+  const ident = identityOf(id as PartyId, ctx);
   return { ...ident, order: meta.order };
 }
 
@@ -267,9 +287,10 @@ export function election1999(input: {
     const incumbent = p.id === input.party;
     const base = p.id === "fi" ? 20 : p.base + (p.id === "an" ? 6 : 0);
     const value = incumbent ? base + record : base - record * 0.22;
-    return { id: p.id, value: Math.max(1.5, value) };
+    return { id: p.id as PollId, value: Math.max(1.5, value) };
   });
-  const all = [...shares, { id: "minor" as PollId, value: 13 }];
+  const minors = minorsAt(1999, input.flags).map((m) => ({ id: m.id as PollId, value: m.share }));
+  const all = [...shares, ...minors];
   const total = all.reduce((a, b) => a + b.value, 0);
 
   const rows: DiagramRow[] = all
