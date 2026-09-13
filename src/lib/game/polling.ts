@@ -2,11 +2,12 @@ import { PARTIES, PARTY_MAP, type PartyId } from "./data";
 import type { GameState } from "./engine";
 import { entryShare } from "./hq";
 import { identityOf, MOMENTS, monthLabelFor, type Identity } from "./identity";
+import { campaignShare, MINOR_MAP, minorsAt, minorsInCampaign } from "./minors";
 
-export type PollId = PartyId | "psi" | "minor";
+export type PollId = string;
 
 export interface PollParty {
-  id: PollId;
+  id: PartyId | "psi";
   /** left-to-right seating order in the Chamber */
   order: number;
   name: string;
@@ -17,21 +18,20 @@ export interface PollParty {
   seats1992: number;
 }
 
-/** The Chamber elected in April 1992, the last of the First Republic. */
+/** The big lists of the Chamber elected in April 1992; the small ones live in minors.ts. */
 export const RESULT_1992: PollParty[] = [
   { id: "prc", order: 0, name: "Rifondazione Comunista", short: "PRC", color: "var(--party-prc)", r1992: 5.6, seats1992: 35 },
   { id: "pds", order: 1, name: "Partito Democratico della Sinistra", short: "PDS", color: "var(--party-pds)", r1992: 16.1, seats1992: 107 },
   { id: "psi", order: 2, name: "Partito Socialista Italiano", short: "PSI", color: "var(--party-psi)", r1992: 13.6, seats1992: 92 },
-  { id: "minor", order: 3, name: "Minor lists (PRI, PLI, PSDI, Verdi, Rete…)", short: "Others", color: "var(--party-minor)", r1992: 20.9, seats1992: 101 },
   { id: "ppi", order: 4, name: "Democrazia Cristiana", short: "DC", color: "var(--party-ppi)", r1992: 29.7, seats1992: 206 },
   { id: "fi", order: 5, name: "Forza Italia", short: "FI", color: "var(--party-fi)", r1992: 0, seats1992: 0 },
   { id: "lega", order: 6, name: "Lega Nord", short: "LN", color: "var(--party-lega)", r1992: 8.7, seats1992: 55 },
   { id: "an", order: 7, name: "Movimento Sociale Italiano", short: "MSI–DN", color: "var(--party-msi)", r1992: 5.4, seats1992: 34 },
 ];
 
-export const POLL_META: Record<PollId, PollParty> = Object.fromEntries(
+export const POLL_META: Record<string, PollParty> = Object.fromEntries(
   RESULT_1992.map((p) => [p.id, p]),
-) as Record<PollId, PollParty>;
+);
 
 /** Cheap deterministic noise in [-1, 1] from a string seed. */
 function noise(seed: string): number {
