@@ -1,4 +1,5 @@
 import type { PartyId } from "./data";
+import { MINOR_MAP } from "./minors";
 
 /** Absolute month index, January 1992 = 0. June 1992 = 5, March 1994 = 26. */
 const MONTH_NAMES = [
