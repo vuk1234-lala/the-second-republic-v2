@@ -91,6 +91,13 @@ export function identityOf(id: PartyId, ctx: IdentityCtx): Identity {
 }
 
 /** Identity as it stands at the end of the campaign — used in government. */
-export function finalIdentity(id: PartyId, player: PartyId, flags: string[]): Identity {
-  return identityOf(id, { player, flags, month: MOMENTS.election });
+export function finalIdentity(id: string, player: PartyId, flags: string[]): Identity {
+  const minor = MINOR_MAP[id];
+  if (minor && id !== "psi") {
+    return { name: minor.name, short: minor.short, color: minor.color };
+  }
+  if (id === "psi") {
+    return { name: "Partito Socialista Italiano", short: "PSI", color: "var(--party-psi)" };
+  }
+  return identityOf(id as PartyId, { player, flags, month: MOMENTS.election });
 }
