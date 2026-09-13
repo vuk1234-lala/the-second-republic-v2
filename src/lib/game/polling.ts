@@ -2,11 +2,12 @@ import { PARTIES, PARTY_MAP, type PartyId } from "./data";
 import type { GameState } from "./engine";
 import { entryShare } from "./hq";
 import { identityOf, MOMENTS, monthLabelFor, type Identity } from "./identity";
+import { campaignShare, MINOR_MAP, minorsAt, minorsInCampaign } from "./minors";
 
-export type PollId = PartyId | "psi" | "minor";
+export type PollId = string;
 
 export interface PollParty {
-  id: PollId;
+  id: PartyId | "psi";
   /** left-to-right seating order in the Chamber */
   order: number;
   name: string;
@@ -17,21 +18,20 @@ export interface PollParty {
   seats1992: number;
 }
 
-/** The Chamber elected in April 1992, the last of the First Republic. */
+/** The big lists of the Chamber elected in April 1992; the small ones live in minors.ts. */
 export const RESULT_1992: PollParty[] = [
   { id: "prc", order: 0, name: "Rifondazione Comunista", short: "PRC", color: "var(--party-prc)", r1992: 5.6, seats1992: 35 },
   { id: "pds", order: 1, name: "Partito Democratico della Sinistra", short: "PDS", color: "var(--party-pds)", r1992: 16.1, seats1992: 107 },
   { id: "psi", order: 2, name: "Partito Socialista Italiano", short: "PSI", color: "var(--party-psi)", r1992: 13.6, seats1992: 92 },
-  { id: "minor", order: 3, name: "Minor lists (PRI, PLI, PSDI, Verdi, Rete…)", short: "Others", color: "var(--party-minor)", r1992: 20.9, seats1992: 101 },
   { id: "ppi", order: 4, name: "Democrazia Cristiana", short: "DC", color: "var(--party-ppi)", r1992: 29.7, seats1992: 206 },
   { id: "fi", order: 5, name: "Forza Italia", short: "FI", color: "var(--party-fi)", r1992: 0, seats1992: 0 },
   { id: "lega", order: 6, name: "Lega Nord", short: "LN", color: "var(--party-lega)", r1992: 8.7, seats1992: 55 },
   { id: "an", order: 7, name: "Movimento Sociale Italiano", short: "MSI–DN", color: "var(--party-msi)", r1992: 5.4, seats1992: 34 },
 ];
 
-export const POLL_META: Record<PollId, PollParty> = Object.fromEntries(
+export const POLL_META: Record<string, PollParty> = Object.fromEntries(
   RESULT_1992.map((p) => [p.id, p]),
-) as Record<PollId, PollParty>;
+);
 
 /** Cheap deterministic noise in [-1, 1] from a string seed. */
 function noise(seed: string): number {
@@ -127,19 +127,23 @@ function baseline(id: PollId, ctx: Ctx): number {
       );
     
     }
-    case "minor":
-      // the old minor lists slowly shed votes to the new formations
-      return Math.max(13.5, 20.9 - Math.min(since, 21) * 0.32);
     default:
       return 0;
   }
 }
 
 function computePoll(ctx: Ctx, index: number): Poll {
-  const rows = RESULT_1992.map((p) => {
-    const value = Math.max(0, baseline(p.id, ctx));
-    const jitter = value === 0 ? 0 : noise(`${p.id}-${ctx.month}-${index}`) * SAMPLING;
-    return { id: p.id as PollId, value: Math.max(value === 0 ? 0 : 0.3, value + jitter) };
+  const majors = RESULT_1992.map((p) => ({
+    id: p.id as PollId,
+    raw: Math.max(0, baseline(p.id, ctx)),
+  }));
+  const minors = minorsInCampaign().map((m) => ({
+    id: m.id as PollId,
+    raw: campaignShare(m, ctx.month),
+  }));
+  const rows = [...majors, ...minors].map((r) => {
+    const jitter = r.raw === 0 ? 0 : noise(`${r.id}-${ctx.month}-${index}`) * SAMPLING;
+    return { id: r.id, value: r.raw === 0 ? 0 : Math.max(0.2, r.raw + jitter) };
   });
   const total = rows.reduce((a, b) => a + b.value, 0);
 
@@ -215,7 +219,7 @@ export interface DiagramRow {
 }
 
 export function rows1992(): DiagramRow[] {
-  return RESULT_1992.filter((p) => p.r1992 > 0).map((p) => ({
+  const majors: DiagramRow[] = RESULT_1992.filter((p) => p.r1992 > 0).map((p) => ({
     id: p.id,
     order: p.order,
     name: p.name,
@@ -224,6 +228,16 @@ export function rows1992(): DiagramRow[] {
     share: p.r1992,
     seats: p.seats1992,
   }));
+  const minors: DiagramRow[] = minorsAt(1992).map((m) => ({
+    id: m.id,
+    order: m.order,
+    name: m.name,
+    short: m.short,
+    color: m.color,
+    share: m.share,
+    seats: Math.max(1, Math.round((m.share / 100) * 630)),
+  }));
+  return [...majors, ...minors];
 }
 
 /** Turn any set of shares into a 630-seat chamber. */
@@ -232,13 +246,23 @@ export function seatsFromShares(rows: { share: number }[]): number[] {
   return rows.map((r) => Math.round((r.share / total) * 630));
 }
 
-/** Display metadata for a party as it stands at a given moment. */
-export function metaFor(id: PollId, ctx: { player: PartyId; flags: string[]; month: number }): Identity & { order: number } {
+/** Display metadata for a party or a small list as it stands at a given moment. */
+export function metaFor(
+  id: PollId,
+  ctx: { player: PartyId; flags: string[]; month: number },
+): Identity & { order: number } {
+  const minor = MINOR_MAP[id];
+  if (minor && id !== "psi") {
+    return { name: minor.name, short: minor.short, color: minor.color, order: minor.order };
+  }
   const meta = POLL_META[id];
-  if (id === "psi" || id === "minor") {
+  if (!meta) {
+    return { name: "Other lists", short: "Other", color: "var(--party-minor)", order: 4.2 };
+  }
+  if (id === "psi") {
     return { name: meta.name, short: meta.short, color: meta.color, order: meta.order };
   }
-  const ident = identityOf(id, ctx);
+  const ident = identityOf(id as PartyId, ctx);
   return { ...ident, order: meta.order };
 }
 
@@ -263,9 +287,10 @@ export function election1999(input: {
     const incumbent = p.id === input.party;
     const base = p.id === "fi" ? 20 : p.base + (p.id === "an" ? 6 : 0);
     const value = incumbent ? base + record : base - record * 0.22;
-    return { id: p.id, value: Math.max(1.5, value) };
+    return { id: p.id as PollId, value: Math.max(1.5, value) };
   });
-  const all = [...shares, { id: "minor" as PollId, value: 13 }];
+  const minors = minorsAt(1999, input.flags).map((m) => ({ id: m.id as PollId, value: m.share }));
+  const all = [...shares, ...minors];
   const total = all.reduce((a, b) => a + b.value, 0);
 
   const rows: DiagramRow[] = all

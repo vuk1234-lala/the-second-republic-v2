@@ -20,35 +20,19 @@ export function Results({
 }) {
   const ctx = { player: state.party, flags: state.flags, month: MOMENTS.election };
   const party = metaFor(state.party, ctx);
-  const named = result.rows.reduce((a, b) => a + b.share, 0);
-  const diagram: DiagramRow[] = [
-    ...result.rows.map((row) => {
-      const meta = metaFor(row.id, ctx);
-      return {
-        id: row.id,
-        order: meta.order,
-        name: meta.name,
-        short: meta.short,
-        color: meta.color,
-        share: row.share,
-        seats: row.seats,
-        mine: row.id === state.party,
-        ally: row.ally,
-      };
-    }),
-    {
-      id: "minor",
-      order: POLL_META.minor.order,
-      name: POLL_META.minor.name,
-      short: POLL_META.minor.short,
-      color: POLL_META.minor.color,
-      share: Math.round((100 - named) * 10) / 10,
-      seats: 0,
-    },
-  ];
-  seatsFromShares(diagram).forEach((seats, i) => {
-    const row = diagram[i];
-    if (row && row.id === "minor") row.seats = seats;
+  const diagram: DiagramRow[] = result.rows.map((row) => {
+    const meta = metaFor(row.id, ctx);
+    return {
+      id: row.id,
+      order: meta.order,
+      name: meta.name,
+      short: meta.short,
+      color: meta.color,
+      share: row.share,
+      seats: row.seats,
+      mine: row.id === state.party,
+      ally: row.ally,
+    };
   });
 
   return (

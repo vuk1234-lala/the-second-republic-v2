@@ -42,7 +42,7 @@ export function CabinetTalks({
         <ul className="mt-4 space-y-3">
           {MINISTRIES.map((m) => {
             const mine = claimed.includes(m.key);
-            const holder = PARTY_MAP[cabinet[m.key]!];
+            const holder = finalIdentity(cabinet[m.key]!, state.party, state.flags);
             const affordable = mine || m.cost <= left;
             return (
               <li key={m.key}>
