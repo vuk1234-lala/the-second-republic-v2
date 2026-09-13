@@ -99,7 +99,8 @@ export function leverage(state: GameState, result: ElectionResult): Leverage {
     ? allies.reduce((a, id) => a + state.relations[id], 0) / allies.length
     : 60;
   const relationBonus = Math.round(Math.max(-10, Math.min(18, avgRel * 0.22)));
-  const partnerPenalty = allies.length * 6;
+  // small lists cost far less at the table than a full party
+  const partnerPenalty = allies.length * 6 + result.minorAllies.length * 2;
   const majorityBonus = result.government ? 14 : 0;
   const points = Math.max(
     6,
@@ -108,18 +109,22 @@ export function leverage(state: GameState, result: ElectionResult): Leverage {
   return { points, seatWeight, relationBonus, partnerPenalty, majorityBonus };
 }
 
-export type Cabinet = Record<string, PartyId>;
+export type Cabinet = Record<string, string>;
 
 /** Offices you did not buy go to partners, biggest first; without partners, to you. */
 export function fillCabinet(state: GameState, result: ElectionResult, claimed: string[]): Cabinet {
-  const allies = result.rows.filter((r) => result.allies.includes(r.id)).map((r) => r.id);
+  // a small ally is only handed an office if it cleared 4% of the vote
+  const partners = result.rows
+    .filter((r) => r.ally && r.id !== state.party && (!r.minor || r.share >= 4))
+    .sort((a, b) => b.seats - a.seats)
+    .map((r) => r.id);
   const cabinet: Cabinet = {};
   let i = 0;
   for (const m of MINISTRIES) {
-    if (claimed.includes(m.key) || allies.length === 0) {
+    if (claimed.includes(m.key) || partners.length === 0 || m.key === "pcm") {
       cabinet[m.key] = state.party;
     } else {
-      cabinet[m.key] = allies[i++ % allies.length]!;
+      cabinet[m.key] = partners[i++ % partners.length]!;
     }
   }
   return cabinet;
