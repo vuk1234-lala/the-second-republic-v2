@@ -89,10 +89,12 @@ export function totalTurns(party: PartyId) {
 }
 
 export interface ElectionRow {
-  id: PartyId;
+  id: string;
   share: number;
   seats: number;
   ally: boolean;
+  /** a small list, never negotiated with directly */
+  minor: boolean;
 }
 
 export interface ElectionResult {
@@ -100,7 +102,10 @@ export interface ElectionResult {
   playerShare: number;
   coalitionShare: number;
   coalitionSeats: number;
+  /** the big parties sitting in your bloc */
   allies: PartyId[];
+  /** the small lists that came in on their own to make up the numbers */
+  minorAllies: string[];
   government: boolean;
   verdict: string;
 }
@@ -125,29 +130,56 @@ export function runElection(state: GameState, chosenAllies?: PartyId[]): Electio
     return { id: party.id, value: Math.max(1.5, party.base + drift) };
   });
 
-  const others = 100 - 18; // minor lists and abstention-adjusted remainder
+  const minors = minorsAt(1994, state.flags);
+  const minorTotal = minors.reduce((a, m) => a + m.share, 0);
+  const bigShare = Math.max(50, 100 - minorTotal);
   const sum = raw.reduce((a, b) => a + b.value, 0);
-  const rows: ElectionRow[] = raw
-    .map((r) => ({
-      id: r.id,
-      share: Math.round(((r.value / sum) * others + Number.EPSILON) * 10) / 10,
-      seats: 0,
-      ally:
-        r.id === state.party ||
-        (chosenAllies ? chosenAllies.includes(r.id) : state.relations[r.id] >= 20),
-    }))
-    .sort((a, b) => b.share - a.share);
 
+  const majorRows: ElectionRow[] = raw.map((r) => ({
+    id: r.id,
+    share: Math.round(((r.value / sum) * bigShare + Number.EPSILON) * 10) / 10,
+    seats: 0,
+    minor: false,
+    ally:
+      r.id === state.party ||
+      (chosenAllies ? chosenAllies.includes(r.id) : state.relations[r.id] >= 20),
+  }));
+  const minorRows: ElectionRow[] = minors.map((m) => ({
+    id: m.id,
+    share: Math.round((m.share + Number.EPSILON) * 10) / 10,
+    seats: 0,
+    minor: true,
+    ally: false,
+  }));
+
+  const rows = [...majorRows, ...minorRows].sort((a, b) => b.share - a.share);
   const shareSum = rows.reduce((a, b) => a + b.share, 0);
   rows.forEach((r) => {
     r.seats = Math.round((r.share / shareSum) * 630);
   });
 
+  // the small lists come in on their own account, as far as the numbers require
+  const myBloc = blocOfParty(state.party, state.flags);
+  let seated = rows.filter((r) => r.ally).reduce((a, b) => a + b.seats, 0);
+  const candidates = rows
+    .filter((r) => r.minor)
+    .map((r) => ({ row: r, aff: affinity(myBloc, MINOR_MAP[r.id]!.bloc) }))
+    .filter((c) => c.aff > 0)
+    .sort((a, b) => b.aff - a.aff || b.row.seats - a.row.seats);
+  for (const c of candidates) {
+    if (seated >= 316) break;
+    c.row.ally = true;
+    seated += c.row.seats;
+  }
+
   const playerShare = rows.find((r) => r.id === state.party)!.share;
   const coalition = rows.filter((r) => r.ally);
   const coalitionShare = Math.round(coalition.reduce((a, b) => a + b.share, 0) * 10) / 10;
   const coalitionSeats = coalition.reduce((a, b) => a + b.seats, 0);
-  const allies = coalition.filter((r) => r.id !== state.party).map((r) => r.id);
+  const allies = coalition
+    .filter((r) => !r.minor && r.id !== state.party)
+    .map((r) => r.id as PartyId);
+  const minorAllies = coalition.filter((r) => r.minor).map((r) => r.id);
   const government = coalitionSeats >= 316;
   const top = rows[0]!;
   const largest = top.id === state.party;
@@ -156,7 +188,7 @@ export function runElection(state: GameState, chosenAllies?: PartyId[]): Electio
   if (government && largest) {
     verdict = `${p.leader} is sworn in at the Quirinale. ${p.short} leads the first government of the Second Republic.`;
   } else if (government) {
-    verdict = `Your coalition has a majority, but ${PARTY_MAP[top.id].short} is its largest party — ${p.leader} governs as a junior partner.`;
+    verdict = `Your coalition has a majority, but ${finalIdentity(top.id, state.party, state.flags).short} is its largest party — ${p.leader} governs as a junior partner.`;
   } else if (largest) {
     verdict = `${p.short} is the biggest party in the Chamber and still short of a majority. Weeks of consultations begin.`;
   } else if (playerShare > p.base) {
@@ -165,7 +197,16 @@ export function runElection(state: GameState, chosenAllies?: PartyId[]): Electio
     verdict = `${p.short} loses ground and goes into opposition. The party begins asking who is to blame.`;
   }
 
-  return { rows, playerShare, coalitionShare, coalitionSeats, allies, government, verdict };
+  return {
+    rows,
+    playerShare,
+    coalitionShare,
+    coalitionSeats,
+    allies,
+    minorAllies,
+    government,
+    verdict,
+  };
 }
 
 export const METRICS = [
