@@ -6,10 +6,10 @@ interface Dot {
   theta: number;
 }
 
-/** Dots arranged in a hemicycle, one dot for every three seats. */
+/** One dot per seat, arranged in a hemicycle. */
 function hemicycle(total: number): Dot[] {
-  const ranks = 5;
-  const radii = [0.58, 0.68, 0.78, 0.88, 0.98];
+  const ranks = 13;
+  const radii = Array.from({ length: ranks }, (_, i) => 0.42 + (i * (1 - 0.42)) / (ranks - 1));
   const sum = radii.reduce((a, b) => a + b, 0);
   const counts = radii.map((r) => Math.max(1, Math.round((total * r) / sum)));
   let diff = total - counts.reduce((a, b) => a + b, 0);
@@ -29,21 +29,40 @@ function hemicycle(total: number): Dot[] {
   return dots.sort((a, b) => a.theta - b.theta || a.y - b.y);
 }
 
+const CHAMBER = 630;
+
+/** Make the seat counts add up to exactly 630 without distorting anyone. */
+function exactSeats(rows: DiagramRow[]): number[] {
+  const raw = rows.map((r) => Math.max(0, r.seats));
+  const sum = raw.reduce((a, b) => a + b, 0) || 1;
+  const scaled = raw.map((s) => (s * CHAMBER) / sum);
+  const seats = scaled.map((s) => Math.floor(s));
+  let left = CHAMBER - seats.reduce((a, b) => a + b, 0);
+  const order = scaled
+    .map((s, i) => ({ i, frac: s - Math.floor(s) }))
+    .sort((a, b) => b.frac - a.frac);
+  for (let k = 0; left > 0; k++, left--) {
+    const idx = order[k % order.length]!.i;
+    seats[idx] = seats[idx]! + 1;
+  }
+  return seats;
+}
+
 export function ElectionDiagram({ rows }: { rows: DiagramRow[] }) {
   const seated = rows.slice().sort((a, b) => a.order - b.order);
-  const dotsPer = 3;
-  const buckets = seated.map((r) => Math.max(1, Math.round(r.seats / dotsPer)));
-  const total = buckets.reduce((a, b) => a + b, 0);
-  const dots = hemicycle(total);
+  const counts = exactSeats(seated);
+  const dots = hemicycle(CHAMBER);
 
   const coloured: { dot: Dot; row: DiagramRow }[] = [];
   let cursor = 0;
   seated.forEach((row, i) => {
-    for (let k = 0; k < buckets[i]!; k++) {
+    for (let k = 0; k < counts[i]!; k++) {
       const dot = dots[cursor++];
       if (dot) coloured.push({ dot, row });
     }
   });
+  const seatOf = new Map<string, number>();
+  seated.forEach((row, i) => seatOf.set(row.id, counts[i]!));
 
   return (
     <div>
@@ -71,7 +90,7 @@ export function ElectionDiagram({ rows }: { rows: DiagramRow[] }) {
                   )}
                 </span>
                 <span className="font-display tabular-nums">
-                  {row.share.toFixed(1)}% · {row.seats} seats
+                  {row.share.toFixed(1)}% · {seatOf.get(row.id) ?? row.seats} seats
                 </span>
               </div>
               <div className="mt-1 h-3 w-full border border-border bg-secondary">

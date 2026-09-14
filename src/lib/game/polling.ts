@@ -235,15 +235,25 @@ export function rows1992(): DiagramRow[] {
     short: m.short,
     color: m.color,
     share: m.share,
-    seats: Math.max(1, Math.round((m.share / 100) * 630)),
+    seats: m.seats1992 ?? Math.max(1, Math.round((m.share / 100) * 630)),
   }));
   return [...majors, ...minors];
 }
 
-/** Turn any set of shares into a 630-seat chamber. */
+/** Turn any set of shares into a chamber of exactly 630 seats (largest remainder). */
 export function seatsFromShares(rows: { share: number }[]): number[] {
   const total = rows.reduce((a, b) => a + b.share, 0) || 1;
-  return rows.map((r) => Math.round((r.share / total) * 630));
+  const exact = rows.map((r) => (r.share / total) * 630);
+  const seats = exact.map((v) => Math.floor(v));
+  let left = 630 - seats.reduce((a, b) => a + b, 0);
+  const order = exact
+    .map((v, i) => ({ i, frac: v - Math.floor(v) }))
+    .sort((a, b) => b.frac - a.frac);
+  for (let k = 0; left > 0; k++, left--) {
+    const idx = order[k % order.length]!.i;
+    seats[idx] = seats[idx]! + 1;
+  }
+  return seats;
 }
 
 /** Display metadata for a party or a small list as it stands at a given moment. */

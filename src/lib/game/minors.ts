@@ -19,6 +19,8 @@ export interface Minor {
   bloc: MinorBloc;
   /** share at each general election, where the list stood */
   s1992?: number;
+  /** deputies actually won in April 1992 */
+  seats1992?: number;
   s1994?: number;
   s1999?: number;
   /** month index (Jan 1992 = 0) from which the list shows up in polls */
@@ -30,21 +32,21 @@ export interface Minor {
 export const MINORS: Minor[] = [
   // ---- the left flank ----
   { id: "pdci", name: "Comunisti Italiani", short: "PdCI", color: "var(--party-pdci)", order: 0.3, bloc: "left", s1999: 2.0 },
-  { id: "verdi", name: "Federazione dei Verdi", short: "Verdi", color: "var(--party-verdi)", order: 0.6, bloc: "left", s1992: 2.8, s1994: 2.7, s1999: 1.8 },
-  { id: "rete", name: "La Rete", short: "Rete", color: "var(--party-rete)", order: 0.8, bloc: "left", s1992: 1.9, s1994: 1.9 },
+  { id: "verdi", name: "Federazione dei Verdi", short: "Verdi", color: "var(--party-verdi)", order: 0.6, bloc: "left", s1992: 2.8, seats1992: 16, s1994: 2.7, s1999: 1.8 },
+  { id: "rete", name: "La Rete", short: "Rete", color: "var(--party-rete)", order: 0.8, bloc: "left", s1992: 1.9, seats1992: 12, s1994: 1.9 },
   { id: "psi", name: "Partito Socialista Italiano", short: "PSI", color: "var(--party-psi)", order: 2, bloc: "left", s1994: 2.2, skipPoll: true },
   { id: "sdi", name: "Socialisti Democratici Italiani", short: "SDI", color: "var(--party-sdi)", order: 2.2, bloc: "left", s1999: 2.2 },
   // ---- the lay and Catholic centre ----
-  { id: "psdi", name: "Partito Socialista Democratico", short: "PSDI", color: "var(--party-psdi)", order: 2.5, bloc: "centrist", s1992: 2.7 },
+  { id: "psdi", name: "Partito Socialista Democratico", short: "PSDI", color: "var(--party-psdi)", order: 2.5, bloc: "centrist", s1992: 2.7, seats1992: 16 },
   { id: "ad", name: "Alleanza Democratica", short: "AD", color: "var(--party-ad)", order: 2.7, bloc: "centrist", s1994: 1.2, from: 18 },
-  { id: "pri", name: "Partito Repubblicano Italiano", short: "PRI", color: "var(--party-pri)", order: 3, bloc: "centrist", s1992: 4.4, s1994: 1.0 },
-  { id: "pannella", name: "Lista Pannella", short: "Pannella", color: "var(--party-pannella)", order: 3.2, bloc: "centrist", s1992: 1.2, s1994: 3.5 },
+  { id: "pri", name: "Partito Repubblicano Italiano", short: "PRI", color: "var(--party-pri)", order: 3, bloc: "centrist", s1992: 4.4, seats1992: 27, s1994: 1.0 },
+  { id: "pannella", name: "Lista Pannella", short: "Pannella", color: "var(--party-pannella)", order: 3.2, bloc: "centrist", s1992: 1.2, seats1992: 7, s1994: 3.5 },
   { id: "bonino", name: "Lista Bonino", short: "Bonino", color: "var(--party-pannella)", order: 3.2, bloc: "centrist", s1999: 6.0 },
   { id: "asinello", name: "I Democratici — l'Asinello", short: "Democratici", color: "var(--party-asinello)", order: 3.6, bloc: "centrist", s1999: 6.0 },
-  { id: "svp", name: "Südtiroler Volkspartei", short: "SVP", color: "var(--party-svp)", order: 3.8, bloc: "centrist", s1992: 0.5, s1994: 0.6, s1999: 0.5 },
-  { id: "altri", name: "Other lists and local slates", short: "Other lists", color: "var(--party-minor)", order: 4.2, bloc: "centrist", s1992: 4.6, s1994: 1.4, s1999: 1.5 },
+  { id: "svp", name: "Südtiroler Volkspartei", short: "SVP", color: "var(--party-svp)", order: 3.8, bloc: "centrist", s1992: 0.5, seats1992: 3, s1994: 0.6, s1999: 0.5 },
+  { id: "altri", name: "Other lists and local slates", short: "Other lists", color: "var(--party-minor)", order: 4.2, bloc: "centrist", s1992: 4.6, seats1992: 3, s1994: 1.4, s1999: 1.5 },
   // ---- the right flank ----
-  { id: "pli", name: "Partito Liberale Italiano", short: "PLI", color: "var(--party-pli)", order: 4.6, bloc: "conservative", s1992: 2.8 },
+  { id: "pli", name: "Partito Liberale Italiano", short: "PLI", color: "var(--party-pli)", order: 4.6, bloc: "conservative", s1992: 2.8, seats1992: 17 },
   { id: "ccd", name: "Centro Cristiano Democratico", short: "CCD", color: "var(--party-ccd)", order: 4.7, bloc: "conservative", s1994: 3.0, from: 23 },
   { id: "ccdu", name: "CCD–CDU, il Biancofiore", short: "Biancofiore", color: "var(--party-ccd)", order: 4.7, bloc: "conservative", s1999: 3.0 },
   { id: "fiamma", name: "Movimento Sociale — Fiamma Tricolore", short: "Fiamma", color: "var(--party-fiamma)", order: 7.6, bloc: "conservative", s1999: 1.0 },
