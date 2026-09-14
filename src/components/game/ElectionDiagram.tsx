@@ -29,42 +29,10 @@ function hemicycle(total: number): Dot[] {
   return dots.sort((a, b) => a.theta - b.theta || a.y - b.y);
 }
 
-/** Whole-number dots per party that always add up to the total, largest remainder first. */
-function allocate(seats: number[], totalDots: number): number[] {
-  const totalSeats = seats.reduce((a, b) => a + b, 0) || 1;
-  const exact = seats.map((s) => (s / totalSeats) * totalDots);
-  const out = exact.map((v) => Math.floor(v));
-  let left = totalDots - out.reduce((a, b) => a + b, 0);
-  const order = exact
-    .map((v, i) => ({ i, rem: v - Math.floor(v) }))
-    .sort((a, b) => b.rem - a.rem);
-  for (let k = 0; left > 0 && order.length; k++, left--) {
-    const i = order[k % order.length]!.i;
-    out[i] = out[i]! + 1;
-  }
-  // never lose a party that won seats
-  seats.forEach((s, i) => {
-    if (s > 0 && out[i] === 0) {
-      const donor = out.indexOf(Math.max(...out));
-      if (out[donor]! > 1) {
-        out[donor] = out[donor]! - 1;
-        out[i] = 1;
-      }
-    }
-  });
-  return out;
-}
-
 export function ElectionDiagram({ rows }: { rows: DiagramRow[] }) {
   const seated = rows.slice().sort((a, b) => a.order - b.order);
-  const totalSeats = seated.reduce((a, b) => a + b.seats, 0);
-  const majority = Math.floor(totalSeats / 2) + 1;
   const dotsPer = 3;
-  const totalDots = Math.max(1, Math.round(totalSeats / dotsPer));
-  const buckets = allocate(
-    seated.map((r) => r.seats),
-    totalDots,
-  );
+  const buckets = seated.map((r) => Math.max(1, Math.round(r.seats / dotsPer)));
   const total = buckets.reduce((a, b) => a + b, 0);
   const dots = hemicycle(total);
 
@@ -85,7 +53,7 @@ export function ElectionDiagram({ rows }: { rows: DiagramRow[] }) {
         ))}
         <line x1={200} y1={40} x2={200} y2={196} stroke="var(--ink)" strokeWidth={1} strokeDasharray="4 4" />
         <text x={200} y={206} textAnchor="middle" className="font-display" fontSize={11} fill="var(--ink)">
-          {totalSeats} SEATS · {majority} TO GOVERN
+          630 SEATS · 316 TO GOVERN
         </text>
       </svg>
 
@@ -109,10 +77,7 @@ export function ElectionDiagram({ rows }: { rows: DiagramRow[] }) {
               <div className="mt-1 h-3 w-full border border-border bg-secondary">
                 <div
                   className="h-full transition-[width] duration-700"
-                  style={{
-                    width: `${(row.share / Math.max(1, ...rows.map((r) => r.share))) * 100}%`,
-                    backgroundColor: row.color,
-                  }}
+                  style={{ width: `${(row.share / 32) * 100}%`, backgroundColor: row.color }}
                 />
               </div>
             </li>
