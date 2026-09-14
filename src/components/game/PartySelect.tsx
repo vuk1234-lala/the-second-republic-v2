@@ -28,7 +28,7 @@ function PartyCard({ party, onPick }: { party: Party; onPick: (id: PartyId) => v
           </p>
         </div>
         <span className="font-display text-right text-2xl tabular-nums">
-        {POLL_META[party.id].r1992 > 0 ? `${POLL_META[party.id].r1992}%` : "new"}
+        {(POLL_META[party.id]?.r1992 ?? 0) > 0 ? `${POLL_META[party.id]?.r1992}%` : "new"}
         <span className="label-caps block text-muted-foreground">in 1992</span>
       </span>
       </div>
