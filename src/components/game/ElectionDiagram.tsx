@@ -85,7 +85,7 @@ export function ElectionDiagram({ rows }: { rows: DiagramRow[] }) {
         ))}
         <line x1={200} y1={40} x2={200} y2={196} stroke="var(--ink)" strokeWidth={1} strokeDasharray="4 4" />
         <text x={200} y={206} textAnchor="middle" className="font-display" fontSize={11} fill="var(--ink)">
-          630 SEATS · 316 TO GOVERN
+          {totalSeats} SEATS · {majority} TO GOVERN
         </text>
       </svg>
 
