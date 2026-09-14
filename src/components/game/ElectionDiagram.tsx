@@ -41,7 +41,10 @@ function exactSeats(rows: DiagramRow[]): number[] {
   const order = scaled
     .map((s, i) => ({ i, frac: s - Math.floor(s) }))
     .sort((a, b) => b.frac - a.frac);
-  for (let k = 0; left > 0; k++, left--) seats[order[k % order.length]!.i]! + 0, (seats[order[k % order.length]!.i] = seats[order[k % order.length]!.i]! + 1);
+  for (let k = 0; left > 0; k++, left--) {
+    const idx = order[k % order.length]!.i;
+    seats[idx] = seats[idx]! + 1;
+  }
   return seats;
 }
 
