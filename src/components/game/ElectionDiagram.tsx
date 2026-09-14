@@ -6,10 +6,10 @@ interface Dot {
   theta: number;
 }
 
-/** Dots arranged in a hemicycle, one dot for every three seats. */
+/** One dot per seat, arranged in a hemicycle. */
 function hemicycle(total: number): Dot[] {
-  const ranks = 5;
-  const radii = [0.58, 0.68, 0.78, 0.88, 0.98];
+  const ranks = 13;
+  const radii = Array.from({ length: ranks }, (_, i) => 0.42 + (i * (1 - 0.42)) / (ranks - 1));
   const sum = radii.reduce((a, b) => a + b, 0);
   const counts = radii.map((r) => Math.max(1, Math.round((total * r) / sum)));
   let diff = total - counts.reduce((a, b) => a + b, 0);
