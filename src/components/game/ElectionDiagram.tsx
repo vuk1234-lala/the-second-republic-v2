@@ -90,7 +90,7 @@ export function ElectionDiagram({ rows }: { rows: DiagramRow[] }) {
                   )}
                 </span>
                 <span className="font-display tabular-nums">
-                  {row.share.toFixed(1)}% · {row.seats} seats
+                  {row.share.toFixed(1)}% · {seatOf.get(row.id) ?? row.seats} seats
                 </span>
               </div>
               <div className="mt-1 h-3 w-full border border-border bg-secondary">
