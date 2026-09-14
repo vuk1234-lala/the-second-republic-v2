@@ -235,7 +235,7 @@ export function rows1992(): DiagramRow[] {
     short: m.short,
     color: m.color,
     share: m.share,
-    seats: Math.max(1, Math.round((m.share / 100) * 630)),
+    seats: m.seats1992 ?? Math.max(1, Math.round((m.share / 100) * 630)),
   }));
   return [...majors, ...minors];
 }
