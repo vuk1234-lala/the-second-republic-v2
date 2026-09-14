@@ -109,7 +109,10 @@ export function ElectionDiagram({ rows }: { rows: DiagramRow[] }) {
               <div className="mt-1 h-3 w-full border border-border bg-secondary">
                 <div
                   className="h-full transition-[width] duration-700"
-                  style={{ width: `${(row.share / 32) * 100}%`, backgroundColor: row.color }}
+                  style={{
+                    width: `${(row.share / Math.max(1, ...rows.map((r) => r.share))) * 100}%`,
+                    backgroundColor: row.color,
+                  }}
                 />
               </div>
             </li>
