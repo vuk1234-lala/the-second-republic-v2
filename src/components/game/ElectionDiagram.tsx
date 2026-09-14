@@ -39,8 +39,8 @@ function allocate(seats: number[], totalDots: number): number[] {
     .map((v, i) => ({ i, rem: v - Math.floor(v) }))
     .sort((a, b) => b.rem - a.rem);
   for (let k = 0; left > 0 && order.length; k++, left--) {
-    out[order[k % order.length]!.i]!;
-    out[order[k % order.length]!.i] = out[order[k % order.length]!.i]! + 1;
+    const i = order[k % order.length]!.i;
+    out[i] = out[i]! + 1;
   }
   // never lose a party that won seats
   seats.forEach((s, i) => {
