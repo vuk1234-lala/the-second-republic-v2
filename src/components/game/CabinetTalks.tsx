@@ -1,4 +1,5 @@
 import { PARTY_MAP } from "@/lib/game/data";
+import { finalIdentity } from "@/lib/game/identity";
 import type { ElectionResult, GameState } from "@/lib/game/engine";
 import { MINISTRIES, fillCabinet, leverage } from "@/lib/game/government";
 
