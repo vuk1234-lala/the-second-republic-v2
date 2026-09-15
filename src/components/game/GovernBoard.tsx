@@ -31,17 +31,23 @@ export function GovernBoard({
   };
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
-      <header className="rule-top flex flex-wrap items-end justify-between gap-3 pt-3">
-        <div className="flex items-center gap-3">
-          <span className="h-8 w-1.5" style={{ backgroundColor: party.color }} aria-hidden />
-          <div>
-            <h1 className="text-2xl leading-none">{party.name} in government</h1>
-            <p className="label-caps mt-1 text-muted-foreground">{party.short}</p>
+    <div className="mx-auto max-w-5xl px-3 py-6 sm:px-4 sm:py-8">
+      <header className="rule-top grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 pt-3 sm:flex sm:flex-wrap sm:justify-between">
+        <div className="flex min-w-0 items-center gap-3">
+          <span
+            className="h-8 w-1.5 shrink-0"
+            style={{ backgroundColor: party.color }}
+            aria-hidden
+          />
+          <div className="min-w-0">
+            <h1 className="truncate text-xl leading-none sm:text-2xl">
+              {party.name} in government
+            </h1>
+            <p className="label-caps mt-1 truncate text-muted-foreground">{party.short}</p>
           </div>
         </div>
-        <p className="label-caps text-muted-foreground">
-          Month {gov.turn + 1} of {TERM_MONTHS} · {monthLabel(gov.turn)}
+        <p className="label-caps shrink-0 text-right text-muted-foreground">
+          {gov.turn + 1}/{TERM_MONTHS} · {monthLabel(gov.turn)}
         </p>
       </header>
 
@@ -50,7 +56,7 @@ export function GovernBoard({
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`font-display border border-ink px-4 py-2 text-xs font-semibold uppercase tracking-widest ${
+            className={`font-display border border-ink px-3 py-2 text-[11px] font-semibold uppercase tracking-widest sm:px-4 sm:text-xs ${
               t === "country" ? "lg:hidden" : ""
             } ${tab === t ? "bg-ink text-primary-foreground" : "bg-background"}`}
           >
