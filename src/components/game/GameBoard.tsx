@@ -105,8 +105,8 @@ export function GameBoard({
           <HeadquartersTab state={state} />
         </div>
       ) : (
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_260px]">
-        <article className="card-paper p-5 sm:p-7">
+      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_260px]">
+        <article className="card-paper min-w-0 p-4 sm:p-7">
           <p className="label-caps text-primary">{event.date}</p>
           <h2 className="mt-2 text-2xl leading-[1.05] sm:text-4xl">{event.headline}</h2>
           <p className="mt-4 border-l-2 border-border pl-4 text-base leading-relaxed text-foreground/85">
