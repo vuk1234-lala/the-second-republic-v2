@@ -1,12 +1,13 @@
 import { useState } from "react";
 
 import { CountryTab } from "@/components/game/CountryTab";
+import { PressTab } from "@/components/game/PressTab";
 import { finalIdentity } from "@/lib/game/identity";
 import type { GovChoice } from "@/lib/game/govevents";
 import { MINISTRIES } from "@/lib/game/government";
 import { governEvent, monthLabel, TERM_MONTHS, type GovState } from "@/lib/game/governing";
 
-type Tab = "desk" | "country";
+type Tab = "desk" | "press" | "country";
 
 export function GovernBoard({
   gov,
@@ -44,20 +45,25 @@ export function GovernBoard({
         </p>
       </header>
 
-      <div className="mt-4 flex gap-2 lg:hidden">
-        {(["desk", "country"] as Tab[]).map((t) => (
+      <div className="mt-4 flex flex-wrap gap-2">
+        {(["desk", "press", "country"] as Tab[]).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             className={`font-display border border-ink px-4 py-2 text-xs font-semibold uppercase tracking-widest ${
-              tab === t ? "bg-ink text-primary-foreground" : "bg-background"
-            }`}
+              t === "country" ? "lg:hidden" : ""
+            } ${tab === t ? "bg-ink text-primary-foreground" : "bg-background"}`}
           >
-            {t === "desk" ? "The desk" : "The country"}
+            {t === "desk" ? "The desk" : t === "press" ? "The press" : "The country"}
           </button>
         ))}
       </div>
 
+      {tab === "press" ? (
+        <div className="mt-6">
+          <PressTab gov={gov} />
+        </div>
+      ) : (
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_280px]">
         <article className={`card-paper p-5 sm:p-7 ${tab === "desk" ? "" : "hidden lg:block"}`}>
           <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -130,6 +136,7 @@ export function GovernBoard({
           )}
         </aside>
       </div>
+      )}
     </div>
   );
 }
