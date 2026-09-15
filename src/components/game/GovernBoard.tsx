@@ -136,6 +136,7 @@ export function GovernBoard({
           )}
         </aside>
       </div>
+      )}
     </div>
   );
 }
