@@ -56,23 +56,27 @@ export function GameBoard({
   };
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
-      <header className="rule-top flex flex-wrap items-end justify-between gap-3 pt-3">
-        <div className="flex items-center gap-3">
-          <span className="h-8 w-1.5" style={{ backgroundColor: party.color }} aria-hidden />
-          <div>
-            <h1 className="text-2xl leading-none">{party.name}</h1>
-            <p className="label-caps mt-1 text-muted-foreground">
+    <div className="mx-auto max-w-5xl px-3 py-6 sm:px-4 sm:py-8">
+      <header className="rule-top grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 pt-3 sm:flex sm:flex-wrap sm:justify-between">
+        <div className="flex min-w-0 items-center gap-3">
+          <span
+            className="h-8 w-1.5 shrink-0"
+            style={{ backgroundColor: party.color }}
+            aria-hidden
+          />
+          <div className="min-w-0">
+            <h1 className="truncate text-xl leading-none sm:text-2xl">{party.name}</h1>
+            <p className="label-caps mt-1 truncate text-muted-foreground">
               {party.short} · Turn {state.turn + 1}
             </p>
           </div>
         </div>
-        <p className="label-caps text-muted-foreground">
-          Turn {state.turn + 1} of {events.length} · {event.date}
+        <p className="label-caps shrink-0 text-right text-muted-foreground">
+          {state.turn + 1}/{events.length} · {event.date}
         </p>
       </header>
 
-      <div className="mt-4 flex gap-2">
+      <div className="mt-4 flex flex-wrap gap-2">
         {(
           [
             ["desk", "The campaign"],
@@ -83,7 +87,7 @@ export function GameBoard({
           <button
             key={key}
             onClick={() => setTab(key)}
-            className={`font-display border border-ink px-4 py-2 text-xs font-semibold tracking-widest uppercase ${
+            className={`font-display border border-ink px-3 py-2 text-[11px] font-semibold tracking-widest uppercase sm:px-4 sm:text-xs ${
               tab === key ? "bg-ink text-primary-foreground" : "bg-background"
             }`}
           >
