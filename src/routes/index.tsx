@@ -161,10 +161,71 @@ function Index() {
     [done, state, allies],
   );
 
-  if (!state) return <PartySelect onPick={pick} />;
-  if (phase === "brief") {
-    return <Election1992 party={state.party} onStart={() => setPhase("coalition")} />;
+  const hasSaves = book.some(Boolean);
+
+  if (!state) {
+    return (
+      <>
+        <PartySelect onPick={pick} />
+        {hasSaves && (
+          <div className="mx-auto max-w-5xl px-4 pb-12">
+            <SaveMenu
+              book={book}
+              activeSlot={slot}
+              mode="load"
+              onLoad={load}
+              onDelete={erase}
+            />
+          </div>
+        )}
+      </>
+    );
   }
+
+  const shell = (screen: React.ReactNode) => (
+    <div className="min-h-dvh">
+      <div className="mx-auto flex max-w-5xl items-center justify-end gap-2 px-4 pt-3">
+        <span className="label-caps truncate text-muted-foreground">
+          {slot === null ? "Not saved" : `Slot ${slot + 1} · autosaving`}
+        </span>
+        <button
+          onClick={() => setMenuOpen((v) => !v)}
+          className="label-caps shrink-0 border border-ink px-3 py-1.5 hover:bg-secondary"
+        >
+          Saves
+        </button>
+        <button
+          onClick={reset}
+          className="label-caps shrink-0 border border-border px-3 py-1.5 text-muted-foreground hover:border-ink hover:text-foreground"
+        >
+          Menu
+        </button>
+      </div>
+      {menuOpen && (
+        <div className="mx-auto max-w-5xl px-4 pt-3">
+          <SaveMenu
+            book={book}
+            activeSlot={slot}
+            mode="save"
+            onLoad={load}
+            onSave={(i) => {
+              store(i);
+              setSlot(i);
+              setMenuOpen(false);
+            }}
+            onDelete={erase}
+            onClose={() => setMenuOpen(false)}
+          />
+        </div>
+      )}
+      {screen}
+    </div>
+  );
+
+  if (phase === "brief") {
+    return shell(<Election1992 party={state.party} onStart={() => setPhase("coalition")} />);
+  }
+
 
   if (done && projection && result) {
     if (phase === "coalition") {
