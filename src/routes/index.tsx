@@ -277,6 +277,6 @@ function Index() {
   }
 
 
-  return <GameBoard state={state} onChoose={choose} />;
+  return shell(<GameBoard state={state} onChoose={choose} />);
 }
 
