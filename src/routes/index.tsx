@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Election1992 } from "@/components/game/Election1992";
 import { CabinetTalks } from "@/components/game/CabinetTalks";
