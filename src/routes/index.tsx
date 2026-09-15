@@ -229,7 +229,7 @@ function Index() {
 
   if (done && projection && result) {
     if (phase === "coalition") {
-      return (
+      return shell(
         <CoalitionTalks
           state={state}
           projection={projection}
@@ -238,11 +238,11 @@ function Index() {
             setAllies((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
           }
           onConfirm={() => setPhase("cabinet")}
-        />
+        />,
       );
     }
     if (phase === "cabinet") {
-      return (
+      return shell(
         <CabinetTalks
           state={state}
           result={result}
@@ -253,16 +253,16 @@ function Index() {
             )
           }
           onConfirm={() => setPhase("results")}
-        />
+        />,
       );
     }
     if (phase === "govern" && gov) {
       if (gov.turn >= TERM_MONTHS || !governEvent(gov)) {
-        return <TermReport gov={gov} onRestart={reset} />;
+        return shell(<TermReport gov={gov} onRestart={reset} />);
       }
-      return <GovernBoard gov={gov} onChoose={govern} />;
+      return shell(<GovernBoard gov={gov} onChoose={govern} />);
     }
-    return (
+    return shell(
       <Results
         state={state}
         result={result}
@@ -272,9 +272,10 @@ function Index() {
           setPhase("govern");
         }}
         onRestart={reset}
-      />
+      />,
     );
   }
+
 
   return <GameBoard state={state} onChoose={choose} />;
 }
