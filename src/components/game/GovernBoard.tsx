@@ -1,12 +1,13 @@
 import { useState } from "react";
 
 import { CountryTab } from "@/components/game/CountryTab";
+import { PressTab } from "@/components/game/PressTab";
 import { finalIdentity } from "@/lib/game/identity";
 import type { GovChoice } from "@/lib/game/govevents";
 import { MINISTRIES } from "@/lib/game/government";
 import { governEvent, monthLabel, TERM_MONTHS, type GovState } from "@/lib/game/governing";
 
-type Tab = "desk" | "country";
+type Tab = "desk" | "press" | "country";
 
 export function GovernBoard({
   gov,
