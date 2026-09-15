@@ -52,6 +52,7 @@ export interface GovDispatch {
   ministry: string;
   headline: string;
   decision: string;
+  fronts: Front[];
 }
 
 export interface GovState {
