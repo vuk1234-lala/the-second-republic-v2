@@ -70,8 +70,10 @@ export function GovernBoard({
           <PressTab gov={gov} />
         </div>
       ) : (
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_280px]">
-        <article className={`card-paper p-5 sm:p-7 ${tab === "desk" ? "" : "hidden lg:block"}`}>
+      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
+        <article
+          className={`card-paper min-w-0 p-4 sm:p-7 ${tab === "desk" ? "" : "hidden lg:block"}`}
+        >
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <p className="label-caps text-primary">{ministry.label}</p>
             <p className="label-caps flex items-center gap-2 text-muted-foreground">
