@@ -8,8 +8,16 @@ import { GameBoard } from "@/components/game/GameBoard";
 import { GovernBoard } from "@/components/game/GovernBoard";
 import { PartySelect } from "@/components/game/PartySelect";
 import { Results } from "@/components/game/Results";
+import { SaveMenu } from "@/components/game/SaveMenu";
 import { TermReport } from "@/components/game/TermReport";
-import type { Choice, PartyId } from "@/lib/game/data";
+import { PARTIES, type Choice, type PartyId } from "@/lib/game/data";
+import {
+  deleteSlot,
+  firstEmptySlot,
+  loadSaves,
+  writeSlot,
+  type SaveBook,
+} from "@/lib/game/saves";
 import {
   applyEffect,
   createGame,
