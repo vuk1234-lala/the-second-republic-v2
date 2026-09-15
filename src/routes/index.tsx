@@ -60,6 +60,39 @@ function Index() {
   const [allies, setAllies] = useState<PartyId[]>([]);
   const [claimed, setClaimed] = useState<string[]>([]);
   const [gov, setGov] = useState<GovState | null>(null);
+  const [book, setBook] = useState<SaveBook>(() => Array.from({ length: 10 }, () => null));
+  const [slot, setSlot] = useState<number | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const hydrated = useRef(false);
+
+  useEffect(() => {
+    setBook(loadSaves());
+    hydrated.current = true;
+  }, []);
+
+  const label = (s: GameState) =>
+    PARTIES.find((p) => p.id === s.party)?.short ?? s.party.toUpperCase();
+
+  const store = (target: number, s: GameState = state!) =>
+    setBook(
+      writeSlot(target, {
+        label: label(s),
+        phase,
+        state: s,
+        allies,
+        claimed,
+        gov,
+      }),
+    );
+
+  // autosave to the active slot after every change
+  useEffect(() => {
+    if (!hydrated.current || slot === null || !state) return;
+    setBook(
+      writeSlot(slot, { label: label(state), phase, state, allies, claimed, gov }),
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slot, state, phase, allies, claimed, gov]);
 
   const reset = () => {
     setState(null);
@@ -67,6 +100,25 @@ function Index() {
     setAllies([]);
     setClaimed([]);
     setGov(null);
+    setSlot(null);
+    setMenuOpen(false);
+  };
+
+  const load = (i: number) => {
+    const save = loadSaves()[i];
+    if (!save) return;
+    setState(save.state);
+    setPhase(save.phase as Phase);
+    setAllies(save.allies ?? []);
+    setClaimed(save.claimed ?? []);
+    setGov(save.gov ?? null);
+    setSlot(i);
+    setMenuOpen(false);
+  };
+
+  const erase = (i: number) => {
+    setBook(deleteSlot(i));
+    if (slot === i) setSlot(null);
   };
 
   const pick = (id: PartyId) => {
@@ -74,7 +126,22 @@ function Index() {
     setClaimed([]);
     setGov(null);
     setPhase("brief");
-    setState(createGame(id));
+    const fresh = createGame(id);
+    setState(fresh);
+    const target = firstEmptySlot(loadSaves());
+    setSlot(target);
+    if (target !== null) {
+      setBook(
+        writeSlot(target, {
+          label: label(fresh),
+          phase: "brief",
+          state: fresh,
+          allies: [],
+          claimed: [],
+          gov: null,
+        }),
+      );
+    }
   };
 
   const choose = (choice: Choice) =>
