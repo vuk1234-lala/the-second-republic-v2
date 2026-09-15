@@ -2,6 +2,7 @@ import type { PartyId } from "./data";
 import { START_COUNTRY, tickCountry, type CountryStats } from "./country";
 import { GOV_EVENTS, type Bloc, type GovChoice, type GovEvent } from "./govevents";
 import { MINISTRIES, type Cabinet } from "./government";
+import { pressFor, type Front } from "./press";
 
 export const TERM_MONTHS = 60;
 
@@ -128,6 +129,7 @@ export function applyGovChoice(state: GovState, event: GovEvent, choice: GovChoi
         ministry: event.ministry,
         headline: event.headline,
         decision: choice.label,
+        fronts: pressFor(event, choice, monthLabel(state.turn)),
       },
     ],
   };
