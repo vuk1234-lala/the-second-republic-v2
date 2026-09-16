@@ -7,7 +7,7 @@ export interface Dot {
 }
 
 /** One dot per seat, arranged in a hemicycle. */
-function hemicycle(total: number): Dot[] {
+export function hemicycle(total: number): Dot[] {
   const ranks = 13;
   const radii = Array.from({ length: ranks }, (_, i) => 0.42 + (i * (1 - 0.42)) / (ranks - 1));
   const sum = radii.reduce((a, b) => a + b, 0);
