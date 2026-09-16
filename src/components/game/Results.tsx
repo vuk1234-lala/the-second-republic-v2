@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { ElectionDiagram } from "@/components/game/ElectionDiagram";
+import { ElectionNight } from "@/components/game/ElectionNight";
 import { NewsFeed } from "@/components/game/NewsFeed";
 import { MOMENTS } from "@/lib/game/identity";
 import { metaFor, POLL_META, seatsFromShares, type DiagramRow } from "@/lib/game/polling";
@@ -18,6 +20,7 @@ export function Results({
   onGovern?: (() => void) | undefined;
   onRestart: () => void;
 }) {
+  const [night, setNight] = useState(true);
   const ctx = { player: state.party, flags: state.flags, month: MOMENTS.election };
   const party = metaFor(state.party, ctx);
   const diagram: DiagramRow[] = result.rows.map((row) => {
@@ -35,6 +38,17 @@ export function Results({
     };
   });
 
+  if (night) {
+    return (
+      <ElectionNight
+        rows={diagram}
+        date="27–28 March 1994"
+        coalitionSeats={result.coalitionSeats}
+        onDone={() => setNight(false)}
+      />
+    );
+  }
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
       <header className="text-center">
@@ -47,7 +61,12 @@ export function Results({
       </header>
 
       <section className="card-paper mt-8 p-5 sm:p-7">
-        <h2 className="rule-top label-caps pt-2 text-muted-foreground">The result</h2>
+        <div className="rule-top flex items-center justify-between gap-3 pt-2">
+          <h2 className="label-caps text-muted-foreground">The result</h2>
+          <button onClick={() => setNight(true)} className="label-caps text-xs text-primary underline">
+            Replay election night
+          </button>
+        </div>
         <div className="mt-4">
           <ElectionDiagram rows={diagram} />
         </div>

@@ -1,13 +1,13 @@
 import type { DiagramRow } from "@/lib/game/polling";
 
-interface Dot {
+export interface Dot {
   x: number;
   y: number;
   theta: number;
 }
 
 /** One dot per seat, arranged in a hemicycle. */
-function hemicycle(total: number): Dot[] {
+export function hemicycle(total: number): Dot[] {
   const ranks = 13;
   const radii = Array.from({ length: ranks }, (_, i) => 0.42 + (i * (1 - 0.42)) / (ranks - 1));
   const sum = radii.reduce((a, b) => a + b, 0);
@@ -29,10 +29,10 @@ function hemicycle(total: number): Dot[] {
   return dots.sort((a, b) => a.theta - b.theta || a.y - b.y);
 }
 
-const CHAMBER = 630;
+export const CHAMBER = 630;
 
 /** Make the seat counts add up to exactly 630 without distorting anyone. */
-function exactSeats(rows: DiagramRow[]): number[] {
+export function exactSeats(rows: DiagramRow[]): number[] {
   const raw = rows.map((r) => Math.max(0, r.seats));
   const sum = raw.reduce((a, b) => a + b, 0) || 1;
   const scaled = raw.map((s) => (s * CHAMBER) / sum);
