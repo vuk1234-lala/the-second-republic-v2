@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { ElectionDiagram } from "@/components/game/ElectionDiagram";
+import { ElectionNight } from "@/components/game/ElectionNight";
 import { NewsFeed } from "@/components/game/NewsFeed";
 import { MOMENTS } from "@/lib/game/identity";
 import { metaFor, POLL_META, seatsFromShares, type DiagramRow } from "@/lib/game/polling";
