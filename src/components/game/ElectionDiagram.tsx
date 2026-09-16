@@ -1,6 +1,6 @@
 import type { DiagramRow } from "@/lib/game/polling";
 
-interface Dot {
+export interface Dot {
   x: number;
   y: number;
   theta: number;
