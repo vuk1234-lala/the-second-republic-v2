@@ -20,6 +20,7 @@ export function Results({
   onGovern?: (() => void) | undefined;
   onRestart: () => void;
 }) {
+  const [night, setNight] = useState(true);
   const ctx = { player: state.party, flags: state.flags, month: MOMENTS.election };
   const party = metaFor(state.party, ctx);
   const diagram: DiagramRow[] = result.rows.map((row) => {
