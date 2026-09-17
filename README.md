@@ -1,22 +1,12 @@
 # The Second Republic
 
-Create the game “The second republic” a political simulation for Italy starting in 1993, create it like the Social Democracy game, but make it so you can chose starting parties like in the campaign trail
+The first republic is crumbling, will YOU lead the second better?
 
 This project was built with [Lovable](https://lovable.dev).
 
 **Live app**: https://the-second-republic-v2.lovable.app
 
-## Build with Lovable
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/5651fe25-cc55-4b27-a010-d53121ab279d).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
 
 ```sh
 git clone <this-repository-url>
