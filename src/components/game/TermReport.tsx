@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { CountryTab } from "@/components/game/CountryTab";
 import { ElectionDiagram } from "@/components/game/ElectionDiagram";
+import { ElectionNight } from "@/components/game/ElectionNight";
 import { START_COUNTRY } from "@/lib/game/country";
 import { finalIdentity } from "@/lib/game/identity";
 import { election1999 } from "@/lib/game/polling";
@@ -17,6 +19,17 @@ export function TermReport({ gov, onRestart }: { gov: GovState; onRestart: () =>
     welfare: gov.stats.welfare,
     debt: gov.stats.debt,
   });
+  const [night, setNight] = useState(true);
+
+  if (night) {
+    return (
+      <ElectionNight
+        rows={vote.rows}
+        date="13 June 1999"
+        onDone={() => setNight(false)}
+      />
+    );
+  }
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
@@ -53,9 +66,12 @@ export function TermReport({ gov, onRestart }: { gov: GovState; onRestart: () =>
       </div>
 
       <section className="card-paper mt-6 p-5 sm:p-7">
-        <h2 className="rule-top label-caps pt-2 text-muted-foreground">
-          The general election · June 1999
-        </h2>
+        <div className="rule-top flex items-center justify-between gap-3 pt-2">
+          <h2 className="label-caps text-muted-foreground">The general election · June 1999</h2>
+          <button onClick={() => setNight(true)} className="label-caps text-xs text-primary underline">
+            Replay election night
+          </button>
+        </div>
         <p className="mt-3 text-base leading-relaxed">{vote.verdict}</p>
         <div className="mt-4">
           <ElectionDiagram rows={vote.rows} />
