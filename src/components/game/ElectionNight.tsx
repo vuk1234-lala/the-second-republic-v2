@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CHAMBER, exactSeats, hemicycle } from "@/components/game/ElectionDiagram";
+import { Button } from "@/components/ui/button";
 import type { DiagramRow } from "@/lib/game/polling";
+
+type MotionMode = "reduced" | "1x" | "2x";
+
+const MOTION_KEY = "second-republic:election-motion";
+const REVEAL_DURATION = { "1x": 30_000, "2x": 15_000 } as const;
 
 const REGIONS = [
   "Piemonte", "Lombardia", "Veneto", "Friuli-Venezia Giulia", "Liguria",
@@ -64,6 +70,8 @@ export function ElectionNight({
   const [revealed, setRevealed] = useState(0);
   const [ticker, setTicker] = useState<string[]>([]);
   const [sound, setSound] = useState(true);
+  const [motion, setMotion] = useState<MotionMode>("1x");
+  const [motionReady, setMotionReady] = useState(false);
   const soundRef = useRef(sound);
   soundRef.current = sound;
 
@@ -94,24 +102,53 @@ export function ElectionNight({
   const done = revealed >= model.seats.length;
 
   useEffect(() => {
-    if (done) return;
-    const id = window.setInterval(() => {
-      setRevealed((r) => Math.min(model.seats.length, r + 7));
-    }, 55);
-    return () => window.clearInterval(id);
-  }, [done, model.seats.length]);
+    const stored = window.localStorage.getItem(MOTION_KEY);
+    const saved = stored === "reduced" || stored === "1x" || stored === "2x" ? stored : null;
+    const preferred = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ? "reduced"
+      : "1x";
+    setMotion(saved ?? preferred);
+    setMotionReady(true);
+  }, []);
 
   useEffect(() => {
-    if (done) return;
-    let n = 0;
+    if (!motionReady) return;
+    window.localStorage.setItem(MOTION_KEY, motion);
+  }, [motion, motionReady]);
+
+  useEffect(() => {
+    if (!motionReady || done) return;
+    if (motion === "reduced") {
+      setRevealed(model.seats.length);
+      setTicker(model.calls);
+      return;
+    }
+
+    const duration = REVEAL_DURATION[motion];
+    const startingSeat = revealed;
+    const remainingSeats = model.seats.length - startingSeat;
+    const start = performance.now();
+    const remainingDuration = duration * (remainingSeats / model.seats.length);
     const id = window.setInterval(() => {
-      const line = model.calls[n % model.calls.length]!;
-      n += 1;
-      setTicker((t) => [line, ...t].slice(0, 6));
-      if (soundRef.current) chime("tick");
-    }, 700);
+      const progress = Math.min(1, (performance.now() - start) / remainingDuration);
+      setRevealed(Math.min(model.seats.length, startingSeat + Math.floor(remainingSeats * progress)));
+    }, 100);
     return () => window.clearInterval(id);
-  }, [done, model.calls]);
+  }, [done, model.calls, model.seats.length, motion, motionReady]);
+
+  useEffect(() => {
+    if (!motionReady || done || motion === "reduced") return;
+    let n = ticker.length;
+    const delay = motion === "2x" ? 750 : 1500;
+    const id = window.setInterval(() => {
+      const line = model.calls[n % model.calls.length];
+      n += 1;
+      if (!line) return;
+      setTicker((t) => (t.includes(line) ? t : [...t, line]));
+      if (soundRef.current) chime("tick");
+    }, delay);
+    return () => window.clearInterval(id);
+  }, [done, model.calls, motion, motionReady, ticker.length]);
 
   useEffect(() => {
     if (done && soundRef.current) chime("stinger");
@@ -129,9 +166,22 @@ export function ElectionNight({
   const board = model.strongest
     .map((row) => ({ row, seats: running.get(row.id) ?? 0 }))
     .sort((a, b) => b.seats - a.seats)
-    .slice(0, 6);
+    .slice(0, done ? model.strongest.length : 6);
 
   const winner = coalitionSeats ?? Math.max(...model.strongest.map((r) => model.totals.get(r.id) ?? 0));
+
+  const selectMotion = (mode: MotionMode) => {
+    setMotion(mode);
+    if (mode === "reduced") {
+      setRevealed(model.seats.length);
+      setTicker(model.calls);
+    }
+  };
+
+  const showFinalResult = () => {
+    setRevealed(model.seats.length);
+    setTicker(model.calls);
+  };
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-ink/95 px-3 py-6 text-primary-foreground backdrop-blur-sm sm:px-6">
@@ -158,14 +208,36 @@ export function ElectionNight({
               fill={lit.has(i) ? seat.row.color : "rgba(255,255,255,0.12)"}
               stroke={lit.has(i) ? "rgba(0,0,0,0.5)" : "transparent"}
               strokeWidth={0.5}
+              className={motion === "reduced" ? "" : "transition-[fill,stroke,r] duration-300"}
             />
           ))}
           <line x1={200} y1={40} x2={200} y2={196} stroke="rgba(255,255,255,0.4)" strokeDasharray="4 4" />
         </svg>
 
-        <p className="font-display text-center text-2xl tabular-nums">
+        <p className="font-display text-center text-2xl tabular-nums" aria-live="polite" aria-atomic="true">
           {revealed} / {CHAMBER} seats projected
         </p>
+
+        <fieldset className="mx-auto mt-4 max-w-md border-y border-primary-foreground/25 py-3">
+          <legend className="label-caps px-2 text-primary-foreground/70">Motion</legend>
+          <div className="grid grid-cols-3 gap-2" aria-label="Election night motion speed">
+            {(["reduced", "1x", "2x"] as const).map((mode) => (
+              <Button
+                key={mode}
+                type="button"
+                variant="outline"
+                aria-pressed={motion === mode}
+                onClick={() => selectMotion(mode)}
+                className="min-h-11 rounded-none border-primary-foreground/40 bg-transparent px-2 text-primary-foreground shadow-none hover:bg-primary-foreground/10 hover:text-primary-foreground aria-pressed:bg-primary-foreground aria-pressed:text-ink"
+              >
+                {mode === "reduced" ? "Reduced" : mode}
+              </Button>
+            ))}
+          </div>
+          <p className="mt-2 text-center text-xs text-primary-foreground/70">
+            {motion === "reduced" ? "No seat animation" : motion === "1x" ? "About 30 seconds" : "About 15 seconds"}
+          </p>
+        </fieldset>
 
         <ul className="mx-auto mt-4 max-w-md space-y-1 text-sm">
           {board.map(({ row, seats }) => (
@@ -180,14 +252,14 @@ export function ElectionNight({
         </ul>
 
         <div
-          className="mt-5 min-h-24 border-y border-primary-foreground/25 py-3 text-sm"
+          className="mt-5 max-h-40 min-h-24 overflow-y-auto border-y border-primary-foreground/25 py-3 text-sm"
           aria-live="polite"
         >
           {ticker.length === 0 ? (
             <p className="text-primary-foreground/60">Polls have closed. Waiting for the first projections…</p>
           ) : (
-            ticker.map((line, i) => (
-              <p key={`${line}-${i}`} style={{ opacity: 1 - i * 0.15 }} className="label-caps">
+            ticker.slice().reverse().map((line, i) => (
+              <p key={line} className={i === 0 ? "label-caps" : "label-caps text-primary-foreground/70"}>
                 {line}
               </p>
             ))
@@ -195,7 +267,7 @@ export function ElectionNight({
         </div>
 
         {done && (
-          <div className="animate-fade-in mt-6 text-center">
+          <div className={motion === "reduced" ? "mt-6 text-center" : "animate-fade-in mt-6 text-center"}>
             <p className="font-display text-3xl sm:text-4xl">
               {winner >= 316 ? "A MAJORITY" : "A HUNG CHAMBER"}
             </p>
@@ -206,18 +278,22 @@ export function ElectionNight({
         )}
 
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-          <button
+          <Button
+            type="button"
             onClick={() => setSound((s) => !s)}
-            className="label-caps border border-primary-foreground/40 px-4 py-2 text-xs"
+            variant="outline"
+            aria-pressed={sound}
+            className="label-caps min-h-11 rounded-none border-primary-foreground/40 bg-transparent px-4 text-xs text-primary-foreground shadow-none hover:bg-primary-foreground/10 hover:text-primary-foreground"
           >
             Sound {sound ? "on" : "off"}
-          </button>
-          <button
-            onClick={() => (done ? onDone() : setRevealed(model.seats.length))}
-            className="font-display border border-primary-foreground bg-primary px-6 py-3 text-sm font-semibold uppercase tracking-widest"
+          </Button>
+          <Button
+            type="button"
+            onClick={() => (done ? onDone() : showFinalResult())}
+            className="font-display min-h-11 rounded-none border border-primary-foreground bg-primary px-6 py-3 text-sm font-semibold uppercase tracking-widest"
           >
-            {done ? "See the result" : "Skip to the call"}
-          </button>
+            {done ? "See the result" : "Show final result"}
+          </Button>
         </div>
       </div>
     </div>
