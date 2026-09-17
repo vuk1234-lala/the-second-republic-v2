@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { CountryTab } from "@/components/game/CountryTab";
 import { ElectionDiagram } from "@/components/game/ElectionDiagram";
+import { ElectionNight } from "@/components/game/ElectionNight";
 import { START_COUNTRY } from "@/lib/game/country";
 import { finalIdentity } from "@/lib/game/identity";
 import { election1999 } from "@/lib/game/polling";
