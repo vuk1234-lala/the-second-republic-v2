@@ -19,6 +19,17 @@ export function TermReport({ gov, onRestart }: { gov: GovState; onRestart: () =>
     welfare: gov.stats.welfare,
     debt: gov.stats.debt,
   });
+  const [night, setNight] = useState(true);
+
+  if (night) {
+    return (
+      <ElectionNight
+        rows={vote.rows}
+        date="13 June 1999"
+        onDone={() => setNight(false)}
+      />
+    );
+  }
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
